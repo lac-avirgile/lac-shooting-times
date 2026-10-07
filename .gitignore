@@ -1,0 +1,7 @@
+node_modules/
+dist/
+qa-output/
+*.tsbuildinfo
+.DS_Store
+ShootingTimesTemplate_25-26.pptx
+ShootingTimesTemplate_25-26/

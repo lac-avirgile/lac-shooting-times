@@ -9,6 +9,7 @@ import { downloadPng } from './graphic/exportPng';
 import { ScheduleEditor } from './editor/ScheduleEditor';
 import { RosterSettings } from './editor/RosterSettings';
 import { loadRoster } from './config/roster';
+import { GLeagueApp } from './gleague/GLeagueApp';
 import { prepareTreatments, type PreparationResult } from './scheduler/prepareTreatments';
 import {syncIndividualTreatments} from './scheduler/individualTreatments';
 import {syncMeeting} from './scheduler/meetingRule';
@@ -19,8 +20,7 @@ import {applyGameContext,type DailyGameContext} from './scheduler/gameContext';
 import type { Schedule } from './domain/models';
 import { templates, exportPresets, templateFor, type TemplateId, type ExportPresetId } from './config/templates';
 
-export default function App() {
-  const [settingsWarning]=useState(()=>loadRoster());
+function ClippersApp({settingsWarning}:{settingsWarning:string|null}) {
   const [settingsChanged,setSettingsChanged]=useState(false);
   const [preparation,setPreparation]=useState<PreparationResult|null>(null);
   const [raw, setRaw] = useState('');
@@ -87,4 +87,10 @@ export default function App() {
     </main>
     <footer>Internal use · TABLE clinicians come from season configuration, independently of workout staff.</footer>
   </div>;
+}
+
+export default function App() {
+  const [settingsWarning]=useState(()=>loadRoster());
+  const [mode,setMode]=useState<'clippers'|'g-league'>('clippers');
+  return <><nav className="workflow-nav" aria-label="Team workflow"><button className={mode==='clippers'?'selected':''} aria-current={mode==='clippers'?'page':undefined} onClick={()=>setMode('clippers')}>LA Clippers</button><button className={mode==='g-league'?'selected':''} aria-current={mode==='g-league'?'page':undefined} onClick={()=>setMode('g-league')}>G League</button></nav>{mode==='clippers'?<ClippersApp settingsWarning={settingsWarning}/>:<GLeagueApp settingsWarning={settingsWarning}/>}</>;
 }

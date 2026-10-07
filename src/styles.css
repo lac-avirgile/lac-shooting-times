@@ -124,6 +124,20 @@ fieldset { border-radius: 6px; padding: 12px; margin: 16px 0; }
 .severity { display: inline-block; border: 1px solid currentColor; border-radius: 3px; padding: 1px 5px; letter-spacing: .4px; }
 .empty-preview { border-radius: 10px; border: 1px dashed #becbdc; background: #ffffff80; min-height: 480px; }
 .roster-player { padding: 12px; border: 1px solid #d6dfeb; border-radius: 7px; }
+.roster-row { display: grid; grid-template-columns: minmax(115px,1fr) minmax(130px,1fr); align-items: center; gap: 8px 12px; padding: 9px 0; border-bottom: 1px solid #e1e6ee; }
+.roster-row > strong { font-size: 13px; }
+.roster-row > label { margin: 0; }
+.roster-row .other-team-name { grid-column: 1 / -1; }
+.roster-row .roster-player { grid-column: 1 / -1; margin: 0; padding: 0; }
+.roster-row .roster-player summary { padding: 7px 9px; font-size: 11px; color: #3e5878; }
+.workflow-nav { display: flex; gap: 8px; padding: 10px 24px; background: #071a34; border-bottom: 1px solid #40536f; }
+.workflow-nav button { background: #1b3452; border-color: #45617d; color: #e7eef6; }
+.workflow-nav button.selected { background: #c8102e; border-color: #c8102e; color: white; }
+.team-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+.team-tabs button { flex: 1 1 110px; }
+.team-tabs button.selected { background: #122b4b; border-color: #122b4b; color: white; }
+.gleague-pair { background: #fff; }
+.gleague-pair legend { font-size: 12px; }
 .conflict-review { border: 1px solid #d29835; border-left: 4px solid #c8102e; border-radius: 8px; }
 .conflict-card { background: #fff; border: 1px solid #d6dfeb; border-radius: 8px; padding: 12px; }
 .conflict-card h3 { margin: 0 0 12px; font-size: 15px; }

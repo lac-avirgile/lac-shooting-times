@@ -23,7 +23,7 @@ describe('editable season settings',()=>{
     expect(schedule.groups[0].athletes[0].clinician.value).toBe('Eric');
   });
   it('removes a player from active choices without losing historical parsing',()=>{
-    setRoster(roster.map(player=>({...player,active:player.id==='loyer'?false:player.active})));
+    setRoster(roster.map(player=>player.id==='loyer'?{...player,team:'unassigned',active:false}:player));
     expect(activeRoster.some(player=>player.id==='loyer')).toBe(false);
     expect(findAthlete('Fletcher')?.active).toBe(false);
     expect(resolveSchedule(parseSchedule('Shooting Times vs Warriors\n11:25 (95 on clock) Fletcher\nGame 1pm')).groups[0].athletes[0].clinician.value).toBeNull();

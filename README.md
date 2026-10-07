@@ -4,6 +4,19 @@
 
 Live site: https://lac-shooting-times.pages.dev/
 
+Use the **LA Clippers** and **G League** tabs at the top of the site. **Roster &
+teams** is available in both workflows. Move players between LA Clippers, G
+League, another named team, and Unassigned, then save. Team assignments, clinicians, and treatment
+defaults are saved in that browser only; they do not sync to other devices.
+
+For G League, enter the first shooting time, game tip, and total court minutes.
+Build 4–7 two-player shooting slots. The app divides the entered court window
+into consecutive whole-minute slots, then schedules each player's treatment and
+15-minute off-court warmup before that pair's shooting slot. New or transferred
+G League players default to 15 minutes of treatment; the duration can be edited
+for a single schedule or in the saved roster. Treatment times avoid double
+booking a named clinician, and conflicts or incomplete slots block PNG export.
+
 This is a static Vite app. For Cloudflare Pages, connect the `main` branch of
 `lac-avirgile/lac-shooting-times`, use `npm run build` as the build command,
 and set the output directory to `dist`. Node.js 22 or newer is required.

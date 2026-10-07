@@ -2,6 +2,8 @@
 
 ## Public site
 
+Live site: https://lac-shooting-times.pages.dev/
+
 This is a static Vite app. For Cloudflare Pages, connect the `main` branch of
 `lac-avirgile/lac-shooting-times`, use `npm run build` as the build command,
 and set the output directory to `dist`. Node.js 22 or newer is required.

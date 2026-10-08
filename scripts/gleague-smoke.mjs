@@ -17,12 +17,18 @@ try {
   const page=await browser.newPage({viewport:{width:1600,height:1000},acceptDownloads:true});
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto(url);
-  await page.getByText('Roster & teams').first().click();
+  await page.getByRole('button',{name:'Roster Management'}).click();
   const names=['Fletcher Loyer','Bradley Beal','Isaiah Jackson','Rui Hachimura','Jordan Miller','Darius Garland','Brandon Ingram','Derrick Jones Jr.'];
   for(const name of names)await page.getByLabel(`Team for ${name}`).selectOption('g-league');
+  await page.locator('.team-tabs button').filter({hasText:'San Diego Clippers'}).click();
+  for(const [index,name] of names.entries()){
+    const row=page.locator('.roster-row').filter({has:page.locator('strong').filter({hasText:name})});
+    await row.locator('.roster-player > summary').click();
+    await row.getByLabel('Primary clinician').fill(index%2?'Gordon':'Lorin');
+  }
   await page.getByRole('button',{name:'Save roster & teams'}).click();
   await page.reload();
-  await page.getByRole('button',{name:'G League'}).click();
+  await page.getByRole('button',{name:'San Diego Clippers Creator'}).click();
   await page.getByLabel('First shooting time').fill('15:00');
   await page.getByLabel('Game tip').fill('17:00');
   await page.getByLabel('Total court minutes').fill('60');
@@ -34,7 +40,8 @@ try {
   const downloadPromise=page.waitForEvent('download');
   await page.getByRole('button',{name:'Download PNG'}).click();
   const download=await downloadPromise;
-  assert(download.suggestedFilename().includes('g-league_shooting-times.png'));
+  assert(download.suggestedFilename().includes('san-diego-clippers_shooting-times.png'));
+  assert.equal(await page.locator('svg.pregame-graphic image[href="/assets/sandiego-clippers.svg"]').count(),1);
   assert.deepEqual(errors,[]);
   console.log('G League roster transfer, schedule, and PNG export passed.');
 } finally {await browser?.close();server.kill();}

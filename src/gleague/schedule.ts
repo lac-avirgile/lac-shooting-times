@@ -50,7 +50,7 @@ export function buildGLeaguePlan(input: GLeagueInput, roster: readonly RosterEnt
       selected.add(id);
       const treatmentMinutes=input.treatmentMinutes[id]??player.treatmentMinutes;
       if(!Number.isInteger(treatmentMinutes)||treatmentMinutes<1||treatmentMinutes>120){issues.push(`${player.name}: treatment must be 1–120 minutes.`);return;}
-      if(!player.clinician.trim())issues.push(`${player.name}: choose a treatment clinician in Roster & teams.`);
+      if(!player.clinician.trim())issues.push(`${player.name}: choose a treatment clinician in Roster Management.`);
       const clinician=player.clinician.trim();
       const occupied=bookings.get(clinician.toLowerCase())??[];
       let treatmentStart=warmupStart-treatmentMinutes;

@@ -21,7 +21,6 @@ import type { Schedule } from './domain/models';
 import { templates, exportPresets, templateFor, type TemplateId, type ExportPresetId } from './config/templates';
 
 function ClippersApp({settingsWarning}:{settingsWarning:string|null}) {
-  const [settingsChanged,setSettingsChanged]=useState(false);
   const [preparation,setPreparation]=useState<PreparationResult|null>(null);
   const [raw, setRaw] = useState('');
   const [schedule, setSchedule] = useState<Schedule | null>(null);
@@ -52,10 +51,10 @@ function ClippersApp({settingsWarning}:{settingsWarning:string|null}) {
     const resolved = resolveSchedule(parseSchedule(text), context?.date);
     if(context)applyGameContext(resolved,context);
     setPreparation(prepareTreatments(resolved));
-    setPrevious(schedule); setSchedule(resolved); setRaw(text); setDirty(false); setSettingsChanged(false); setExportError('');
+    setPrevious(schedule); setSchedule(resolved); setRaw(text); setDirty(false); setExportError('');
   };
   const download = async (): Promise<void> => {
-    if (!svgRef.current || !schedule || errorCount || settingsChanged) return;
+    if (!svgRef.current || !schedule || errorCount) return;
     setExporting(true); setExportError('');
     try { await downloadPng(svgRef.current, schedule, exportPreset); }
     catch (error) { setExportError(error instanceof Error ? error.message : 'Export failed. Please try again.'); }
@@ -69,14 +68,12 @@ function ClippersApp({settingsWarning}:{settingsWarning:string|null}) {
         <textarea id="raw-text" value={raw} onChange={e => setRaw(e.target.value)} placeholder="Paste the daily shooting-times text here…" spellCheck={false} />
         <button className="primary wide-button" onClick={() => parse()} disabled={!raw.trim()}>Parse Schedule</button>
         <button className="wide-button" onClick={() => parse(hawaiiGame.text, hawaiiGame)}>Load Oct 4 Hawaii game</button>
-        <RosterSettings onSave={()=>{setSettingsChanged(Boolean(schedule));setDirty(Boolean(schedule));}} />
         {settingsWarning&&<p role="alert" className="export-error">{settingsWarning}</p>}
-        {settingsChanged&&<p role="alert" className="export-error">Roster settings changed. Click Parse Schedule again to apply them before export. Existing edits have not been replaced.</p>}
         <div className="sample-picker"><label>Examples<select aria-label="Load sample" value="" onChange={e => { const sample = e.target.value === 'current' ? currentRosterExample : samples[Number(e.target.value)]; if (sample) parse(sample.text); }}><option value="">Choose example…</option><option value="current">Current roster · illustrative times</option>{samples.map((s, i) => <option key={s.name} value={i}>Historical {i + 1}. {s.name}</option>)}</select></label><p className="field-help">Example times are for demonstration. Historical off-roster names have no current clinician assignment.</p></div>
         {schedule && <><div className="editor-heading"><h2>Review & edit</h2><button disabled={!previous} onClick={() => { if (previous) { setSchedule(previous); setPrevious(null); setDirty(true); } }}>Undo</button></div><ScheduleEditor schedule={schedule} edit={edit} /></>}
       </aside>
       <section className="preview-panel">
-        <div className="preview-toolbar"><div><h2>Graphic preview</h2><p>{schedule ? 'Changes appear immediately.' : 'Paste a message or load a sample to begin.'}</p></div><div className="export-controls"><label>PNG quality<select aria-label="PNG quality" disabled={exporting} value={exportPreset} onChange={e => setExportPreset(e.target.value as ExportPresetId)}>{exportPresets.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}</select></label><button className="primary" disabled={!schedule || errorCount > 0 || exporting || !fontReady || settingsChanged} onClick={() => void download()}>{exporting ? 'Rendering PNG…' : 'Download PNG'}</button></div></div>
+        <div className="preview-toolbar"><div><h2>Graphic preview</h2><p>{schedule ? 'Changes appear immediately.' : 'Paste a message or load a sample to begin.'}</p></div><div className="export-controls"><label>PNG quality<select aria-label="PNG quality" disabled={exporting} value={exportPreset} onChange={e => setExportPreset(e.target.value as ExportPresetId)}>{exportPresets.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}</select></label><button className="primary" disabled={!schedule || errorCount > 0 || exporting || !fontReady} onClick={() => void download()}>{exporting ? 'Rendering PNG…' : 'Download PNG'}</button></div></div>
         <div className="template-picker" role="group" aria-label="Graphic design">{templates.map(option => <button key={option.id} className={`template-choice ${template === option.id ? 'selected' : ''}`} disabled={exporting} aria-pressed={template === option.id} onClick={() => setTemplate(option.id)}><span className={`template-swatch swatch-${option.id}`} aria-hidden="true" /><span>{option.name}</span></button>)}</div>
         <p className="design-caption">{templateFor(template).description} All PNGs are lossless, with 300-DPI print metadata.</p>
         {scene&&(scene.width??1920)>1920&&<p className="field-help">Automatically sized to fit all content: {scene.width} × {scene.height}, still 16:9. No players, times or notes were removed.</p>}
@@ -91,6 +88,6 @@ function ClippersApp({settingsWarning}:{settingsWarning:string|null}) {
 
 export default function App() {
   const [settingsWarning]=useState(()=>loadRoster());
-  const [mode,setMode]=useState<'clippers'|'g-league'>('clippers');
-  return <><nav className="workflow-nav" aria-label="Team workflow"><button className={mode==='clippers'?'selected':''} aria-current={mode==='clippers'?'page':undefined} onClick={()=>setMode('clippers')}>LA Clippers</button><button className={mode==='g-league'?'selected':''} aria-current={mode==='g-league'?'page':undefined} onClick={()=>setMode('g-league')}>G League</button></nav>{mode==='clippers'?<ClippersApp settingsWarning={settingsWarning}/>:<GLeagueApp settingsWarning={settingsWarning}/>}</>;
+  const [mode,setMode]=useState<'clippers'|'g-league'|'roster'>('clippers');
+  return <><nav className="workflow-nav" aria-label="Site sections"><button className={mode==='clippers'?'selected':''} aria-current={mode==='clippers'?'page':undefined} onClick={()=>setMode('clippers')}>LA Clippers Creator</button><button className={`sandiego ${mode==='g-league'?'selected':''}`} aria-current={mode==='g-league'?'page':undefined} onClick={()=>setMode('g-league')}>San Diego Clippers Creator</button><button className={mode==='roster'?'selected':''} aria-current={mode==='roster'?'page':undefined} onClick={()=>setMode('roster')}>Roster Management</button></nav>{mode==='clippers'?<ClippersApp settingsWarning={settingsWarning}/>:mode==='g-league'?<GLeagueApp settingsWarning={settingsWarning}/>:<main className="roster-page"><RosterSettings />{settingsWarning&&<p role="alert" className="export-error">{settingsWarning}</p>}</main>}</>;
 }

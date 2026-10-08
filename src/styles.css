@@ -133,6 +133,18 @@ fieldset { border-radius: 6px; padding: 12px; margin: 16px 0; }
 .workflow-nav { display: flex; gap: 8px; padding: 10px 24px; background: #071a34; border-bottom: 1px solid #40536f; }
 .workflow-nav button { background: #1b3452; border-color: #45617d; color: #e7eef6; }
 .workflow-nav button.selected { background: #c8102e; border-color: #c8102e; color: white; }
+.workflow-nav button.sandiego.selected { background: #4891ce; border-color: #4891ce; color: #12173f; }
+.sandiego-header { background: linear-gradient(110deg,#12173f,#244d7b); border-bottom-color: #4891ce; }
+.sandiego-header img { object-fit: contain; }
+.roster-page { display: block; max-width: 1160px; margin: 24px auto; padding: 0 20px 40px; }
+.roster-management { background: white; border: 1px solid #d5e0e9; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px #071a3410; }
+.roster-management-header { padding: 24px 30px; background: linear-gradient(110deg,#12173f,#244d7b); color: white; border-bottom: 5px solid #4891ce; }
+.roster-management-header h1 { font-size: 27px; }
+.roster-management-header p { margin: 8px 0 0; color: #d4e6f3; font-size: 13px; }
+.roster-settings { padding: 24px 30px 30px; }
+.roster-settings > .field-help { font-size: 13px; }
+.roster-management .roster-row { grid-template-columns: minmax(220px,1fr) minmax(230px,320px); padding: 12px 4px; }
+@media (max-width: 680px) { .workflow-nav { flex-wrap: wrap; padding: 10px; } .workflow-nav button { flex: 1 1 140px; } .roster-page { padding: 0 10px 24px; } .roster-settings { padding: 16px; } .roster-management .roster-row { grid-template-columns: 1fr; } .roster-row .roster-player { grid-column: 1; } }
 .team-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
 .team-tabs button { flex: 1 1 110px; }
 .team-tabs button.selected { background: #122b4b; border-color: #122b4b; color: white; }

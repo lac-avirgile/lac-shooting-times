@@ -7,8 +7,8 @@ const browser=await chromium.launch({channel:'msedge',headless:true});
 const page=await browser.newPage({viewport:{width:1920,height:1200}});
 const exceptions=[];page.on('pageerror',error=>exceptions.push(error.message));
 try {
-  await page.goto('http://127.0.0.1:5173/',{waitUntil:'domcontentloaded',timeout:60000});
-  await page.locator('.roster-settings > summary').click();
+  await page.goto(process.env.QA_URL??'http://127.0.0.1:4183/',{waitUntil:'domcontentloaded',timeout:30000});
+  await page.getByRole('button',{name:'Roster Management'}).click();
   for(const id of ['hachimura','garland','ingram']){
     const row=page.locator('.roster-row').filter({has:page.locator('strong').filter({hasText:id==='hachimura'?'Rui Hachimura':id==='garland'?'Darius Garland':'Brandon Ingram'})});
     await row.locator('.roster-player > summary').click();
@@ -23,18 +23,24 @@ try {
   await added.getByLabel('Aliases (comma separated)',{exact:true}).fill('TP, Testy');
   await page.getByRole('button',{name:'Save roster & teams',exact:true}).click();
   assert((await page.getByRole('status').innerText()).includes('Saved in this browser'));
-  await page.reload();await page.locator('.roster-settings > summary').click();
+  await page.reload();await page.getByRole('button',{name:'Roster Management'}).click();
   const restored=page.locator('.roster-row').filter({has:page.locator('strong').filter({hasText:'Test Player'})});
   await restored.locator('.roster-player > summary').click();
   assert.equal(await restored.getByLabel('Primary clinician').inputValue(),'Eric');
   assert.equal(await restored.locator('input[type="number"]').inputValue(),'25');
+  await page.getByRole('button',{name:'LA Clippers Creator'}).click();
   await page.locator('#raw-text').fill('Shooting times vs Warriors\n11:25 (95 on clock) Testy\nGame 1pm');
   await page.getByRole('button',{name:'Parse Schedule',exact:true}).click();
   assert((await page.locator('svg.pregame-graphic').textContent()).includes('TEST PLAYER'));
+  await page.getByRole('button',{name:'Roster Management'}).click();
+  const toUnassign=page.locator('.roster-row').filter({has:page.locator('strong').filter({hasText:'Test Player'})});
+  await toUnassign.locator('.roster-player > summary').click();
   await page.getByRole('button',{name:'Unassign Test Player',exact:true}).click();
   await page.getByRole('button',{name:'Save roster & teams',exact:true}).click();
+  await page.getByRole('button',{name:'LA Clippers Creator'}).click();
+  await page.locator('#raw-text').fill('Shooting times vs Warriors\n11:25 (95 on clock) Testy\nGame 1pm');
+  await page.getByRole('button',{name:'Parse Schedule',exact:true}).click();
   assert.equal(await page.getByRole('button',{name:'Download PNG',exact:true}).isDisabled(),true);
-  page.once('dialog',dialog=>dialog.accept());
   await page.getByRole('button',{name:'Load Oct 4 Hawaii game',exact:true}).click();
   if(!await page.locator('.treatment-planner').evaluate(node=>node.open))await page.locator('.treatment-planner > summary').click();
   assert.equal(await page.locator('.conflict-review').count(),0);

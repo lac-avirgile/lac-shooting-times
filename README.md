@@ -4,16 +4,28 @@
 
 Live site: https://lac-shooting-times.pages.dev/
 
-Use the **LA Clippers** and **G League** tabs at the top of the site. **Roster &
-teams** is available in both workflows. Move players between LA Clippers, G
-League, another named team, and Unassigned, then save. Team assignments, clinicians, and treatment
-defaults are saved in that browser only; they do not sync to other devices.
+Use the **Roster Management** tab to set LA Clippers and San Diego Clippers
+(G League) rosters, clinician assignments, and default treatment times. Move
+players to another named team or Unassigned when needed. LA and San Diego
+clinician/treatment defaults remain separate when a player changes teams.
+Changes are saved in that browser only; they do not sync to other devices.
+San Diego starts with players from its
+[2025–26 season roster](https://www.statscrew.com/minorbasketball/roster/t-GLGACC/y-2025)
+who are not already assigned to LA. Lorin and Gordon are preassigned across
+the San Diego players as editable starting defaults. Staff should update the
+roster and assignments for the current day before creating a schedule.
 
-For G League, enter the first shooting time, game tip, and total court minutes.
+The **LA Clippers Creator** and **San Diego Clippers Creator** tabs use those
+saved settings. San Diego's creator uses the team's official logo and its navy,
+red, and Pacific blue colors. The logo is stored locally at
+`public/assets/sandiego-clippers.svg` and comes from the
+[NBA G League team site's logo asset](https://ak-static.cms.nba.com/wp-content/uploads/logos/nbagleague/1612709924/primary/D/logo.svg).
+
+For San Diego, enter the first shooting time, game tip, and total court minutes.
 Build 4–7 two-player shooting slots. The app divides the entered court window
 into consecutive whole-minute slots, then schedules each player's treatment and
 15-minute off-court warmup before that pair's shooting slot. New or transferred
-G League players default to 15 minutes of treatment; the duration can be edited
+San Diego players default to 15 minutes of treatment; the duration can be edited
 for a single schedule or in the saved roster. Treatment times avoid double
 booking a named clinician, and conflicts or incomplete slots block PNG export.
 
@@ -147,7 +159,7 @@ Review **Treatment planner**, then **Apply reviewed treatment plan**. Primaries 
 
 ### Roster settings and conflict resolution
 
-Open **Roster & treatment defaults** below the text input. Add/remove/restore players, type full names and comma-separated aliases, assign primary/secondary clinicians, and edit default minutes. Click **Save roster settings**. These persist across refresh in this browser only. Reparse to apply changed settings; existing schedule edits are preserved until you confirm reparsing.
+Open **Roster Management** from the top navigation. Add or move players between teams, edit names and aliases, assign primary/secondary clinicians, and set default treatment minutes. Click **Save roster & teams**. Settings persist across refresh in this browser only. Return to either creator to build a schedule using the saved roster.
 
 Default active-player treatment: 15 minutes, except Rui, Darius and Brandon Ingram at 30. Clinicians: Jasen, Colby, Dan, Maggie, Jesse, Eric, Lorin. Older JP/Jasen Powell labels are normalized for conflict checks. A chosen secondary precedes shared backups.
 

@@ -14,7 +14,7 @@ describe('approved scheduling fixtures', () => {
     expect(activeRoster).toHaveLength(21);
     expect(activeRoster.every(player => Boolean(clinicianAssignments[player.id]))).toBe(true);
     expect(Object.fromEntries(activeRoster.map(player => [player.id,player.clinician]))).toEqual(expectedClinicians);
-    expect(roster.filter(player => !player.active).every(player => !clinicianAssignments[player.id] && player.clinician === '')).toBe(true);
+    expect(roster.filter(player => !player.active && player.team === 'unassigned').every(player => !clinicianAssignments[player.id] && player.clinician === '')).toBe(true);
   });
   it('current-roster example resolves immediately with configured clinicians', () => {
     const schedule = resolveSchedule(parseSchedule(currentRosterExample.text));

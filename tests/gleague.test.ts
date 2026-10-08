@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { defaultRoster, loadRoster, playersOnTeam, roster, saveRoster, setRoster } from '../src/config/roster';
+import { defaultRoster, loadRoster, movePlayerToTeam, playersOnTeam, roster, saveRoster, setRoster } from '../src/config/roster';
 import { buildGLeaguePlan } from '../src/gleague/schedule';
 
 const players=['loyer','beal','jackson','hachimura','miller','garland','ingram','jones'];
@@ -39,17 +39,20 @@ describe('team roster persistence',()=>{
     const data=new Map<string,string>();
     const storage={setItem:(key:string,value:string)=>{data.set(key,value);},getItem:(key:string)=>data.get(key)??null};
     saveRoster(roster.map(player=>player.id==='loyer'?{...player,team:'g-league',active:false,treatmentMinutes:15}:player),storage);
-    expect(playersOnTeam('g-league').map(player=>player.id)).toEqual(['loyer']);
+    expect(playersOnTeam('g-league').some(player=>player.id==='loyer')).toBe(true);
     expect(playersOnTeam('clippers').some(player=>player.id==='loyer')).toBe(false);
     setRoster(defaultRoster);
     expect(loadRoster(storage)).toBeNull();
-    expect(playersOnTeam('g-league').map(player=>player.id)).toEqual(['loyer']);
+    expect(playersOnTeam('g-league').some(player=>player.id==='loyer')).toBe(true);
   });
   it('migrates a legacy browser roster into Clippers and Unassigned teams',()=>{
-    const data=JSON.stringify({version:1,players:defaultRoster});
+    const oldPlayers=defaultRoster.slice(0,29).map(({team,teamDefaults,...player})=>player);
+    const data=JSON.stringify({version:1,players:oldPlayers});
     expect(loadRoster({getItem:()=>data})).toBeNull();
     expect(playersOnTeam('clippers').length).toBe(21);
-    expect(playersOnTeam('unassigned').length).toBe(8);
+    expect(playersOnTeam('unassigned').length).toBe(5);
+    expect(playersOnTeam('g-league').length).toBe(17);
+    expect(playersOnTeam('g-league').every(player=>['Lorin','Gordon'].includes(player.clinician))).toBe(true);
   });
   it('records a named external team without putting that player in either scheduling roster',()=>{
     const data=new Map<string,string>();
@@ -60,5 +63,22 @@ describe('team roster persistence',()=>{
     expect(playersOnTeam('clippers').some(player=>player.id==='loyer')).toBe(false);
     setRoster(defaultRoster);expect(loadRoster(storage)).toBeNull();
     expect(playersOnTeam('other').find(player=>player.id==='loyer')?.otherTeam).toBe('Example Club');
+  });
+  it('keeps separate LA and San Diego clinician and treatment defaults across transfers',()=>{
+    const lac=roster.find(player=>player.id==='hachimura')!;
+    expect(lac.treatmentMinutes).toBe(30);
+    const sanDiego=movePlayerToTeam(lac,'g-league');
+    expect(sanDiego).toMatchObject({clinician:'',treatmentMinutes:15,active:false});
+    sanDiego.clinician='SD Clinician';sanDiego.treatmentMinutes=25;
+    const backToLA=movePlayerToTeam(sanDiego,'clippers');
+    expect(backToLA).toMatchObject({clinician:'Jesse',treatmentMinutes:30,active:true});
+    const backToSanDiego=movePlayerToTeam(backToLA,'g-league');
+    expect(backToSanDiego).toMatchObject({clinician:'SD Clinician',treatmentMinutes:25,active:false});
+    const data=new Map<string,string>();
+    const storage={setItem:(key:string,value:string)=>{data.set(key,value);},getItem:(key:string)=>data.get(key)??null};
+    saveRoster(roster.map(player=>player.id==='hachimura'?backToSanDiego:player),storage);
+    setRoster(defaultRoster);expect(loadRoster(storage)).toBeNull();
+    const saved=playersOnTeam('g-league').find(player=>player.id==='hachimura')!;
+    expect(movePlayerToTeam(saved,'clippers')).toMatchObject({clinician:'Jesse',treatmentMinutes:30});
   });
 });

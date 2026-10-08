@@ -90,7 +90,7 @@ try{
   const originalCourt=await image().textContent();
   await finalGroup.getByLabel('COURT start',{exact:true}).fill('10:41');assert((await image().textContent()).includes('10:41AM'));
   await finalGroup.getByLabel('COURT start',{exact:true}).fill('10:40');assert.equal(await image().textContent(),originalCourt);
-  const meta=page.locator('#game');await meta.locator('summary').click();await meta.getByLabel('Game header label',{exact:true}).fill('PRESEASON GAME 1 TEST');assert((await image().textContent()).includes('PRESEASON GAME 1 TEST'));
+  const meta=page.locator('#game');if(!(await meta.evaluate(node=>node.open)))await meta.locator('summary').click();await meta.getByLabel('Game header label',{exact:true}).fill('PRESEASON GAME 1 TEST');assert((await image().textContent()).includes('PRESEASON GAME 1 TEST'));
   await meta.getByLabel('Game header label',{exact:true}).fill('PRESEASON GAME 1');
   await page.getByRole('button',{name:'+ Add group',exact:true}).click();assert.equal(await page.locator('.group-editor').count(),11);
   const extra=await openGroup(10);await extra.getByRole('button',{name:'Delete group',exact:true}).click();assert.equal(await page.locator('.group-editor').count(),10);

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { movePlayerToTeam, roster, saveRoster, teamOf, validateRoster, type RosterEntry, type Team } from '../config/roster';
 import { clinicians } from '../config/clinicians';
+import { loadRosterAudit, rosterChanges, rosterEditorKey, saveRosterAudit } from '../config/rosterAudit';
 
 const teamLabels: Record<Team,string> = { clippers:'LA Clippers', 'g-league':'San Diego Clippers', other:'Other team', unassigned:'Unassigned' };
 const teams: Team[] = ['clippers','g-league','other','unassigned'];
@@ -11,6 +12,8 @@ export function RosterSettings({onSave=()=>{}, initialTeam='clippers'}:{onSave?:
   const [message,setMessage]=useState('');
   const [failed,setFailed]=useState(false);
   const [expandedIds,setExpandedIds]=useState<string[]>([]);
+  const [editorName,setEditorName]=useState(()=>{try{return localStorage.getItem(rosterEditorKey)??'';}catch{return '';}});
+  const [history,setHistory]=useState(()=>loadRosterAudit());
   const update=(id:string,change:(player:RosterEntry)=>void):void=>{
     setPlayers(current=>current.map(player=>{if(player.id!==id)return player;const copy=structuredClone(player);change(copy);return copy;}));
     setMessage('');
@@ -19,16 +22,17 @@ export function RosterSettings({onSave=()=>{}, initialTeam='clippers'}:{onSave?:
     const normalized=players.map(player=>({...player,name:player.name.trim(),short:player.short.trim()||player.name.trim().split(' ')[0],active:teamOf(player)==='clippers'}));
     const issues=validateRoster(normalized);
     if(issues.length){setFailed(true);setMessage(issues.join(' '));return;}
-    try {saveRoster(normalized);setPlayers(structuredClone(roster));onSave();setFailed(false);setMessage('Saved in this browser. Both schedule creators will use these assignments.');}
+    try {const changes=rosterChanges(roster,normalized,editorName.trim()||'Name not entered',new Date().toISOString());saveRoster(normalized);localStorage.setItem(rosterEditorKey,editorName.trim());if(changes.length)setHistory(saveRosterAudit(changes));setPlayers(structuredClone(roster));onSave();setFailed(false);setMessage(changes.length?`Saved ${changes.length} player change${changes.length===1?'':'s'} in this browser. Both creators will use these assignments.`:'No roster changes to save.');}
     catch(error){setFailed(true);setMessage(error instanceof Error?error.message:'Settings could not be saved.');}
   };
   const visible=players.filter(player=>teamOf(player)===selectedTeam);
   return <section className="roster-management"><header className="roster-management-header"><h1>Roster Management</h1><p>Set team rosters, clinician assignments, and default treatment times.</p></header><div className="roster-settings">
     <p className="field-help">Saved in this browser. Assign each player to LA, San Diego, another named team, or Unassigned. Each team's clinician and treatment defaults are kept when a player moves between LA and San Diego.</p>
+    <label>Editor name (optional)<input aria-label="Editor name" value={editorName} onChange={e=>setEditorName(e.target.value)} placeholder="Your name for the local change history"/></label>
     <div className="team-tabs" role="group" aria-label="Roster team">{teams.map(team=><button key={team} aria-pressed={selectedTeam===team} className={selectedTeam===team?'selected':''} onClick={()=>setSelectedTeam(team)}>{teamLabels[team]} ({players.filter(player=>teamOf(player)===team).length})</button>)}</div>
     {selectedTeam==='g-league'&&<p className="field-help">Starting list: San Diego’s 2025–26 season roster. Lorin and Gordon are assigned as editable defaults. Confirm today’s players before scheduling.</p>}
     {visible.length===0&&<p className="field-help">No players assigned here. Add one below or move a player from another team.</p>}
-    {visible.map(player=><div key={player.id} className="roster-row"><strong>{player.name||'New player'}{teamOf(player)==='other'&&player.otherTeam?` · ${player.otherTeam}`:''}</strong><label>Team<select aria-label={`Team for ${player.name||'new player'}`} value={teamOf(player)} onChange={e=>{const team=e.target.value as Team;update(player.id,row=>Object.assign(row,movePlayerToTeam(row,team)));if(team==='other')setExpandedIds(current=>current.includes(player.id)?current:[...current,player.id]);}}>{teams.map(team=><option key={team} value={team}>{teamLabels[team]}</option>)}</select></label>
+    {visible.map(player=><div key={player.id} className="roster-row"><strong>{player.name||'New player'}{teamOf(player)==='other'&&player.otherTeam?` · ${player.otherTeam}`:''}</strong>{history.find(change=>change.playerId===player.id)&&<small className="roster-updated">Updated {new Date(history.find(change=>change.playerId===player.id)!.at).toLocaleString()} · {history.find(change=>change.playerId===player.id)!.by}</small>}<label>Team<select aria-label={`Team for ${player.name||'new player'}`} value={teamOf(player)} onChange={e=>{const team=e.target.value as Team;update(player.id,row=>Object.assign(row,movePlayerToTeam(row,team)));if(team==='other')setExpandedIds(current=>current.includes(player.id)?current:[...current,player.id]);}}>{teams.map(team=><option key={team} value={team}>{teamLabels[team]}</option>)}</select></label>
       {teamOf(player)==='other'&&<label className="other-team-name">Other team name<input aria-label={`Other team for ${player.name||'new player'}`} value={player.otherTeam??''} onChange={e=>update(player.id,row=>{row.otherTeam=e.target.value;})}/></label>}
       <details className="roster-player" open={expandedIds.includes(player.id)}><summary onClick={event=>{event.preventDefault();setExpandedIds(current=>current.includes(player.id)?current.filter(id=>id!==player.id):[...current,player.id]);}}>Edit player details</summary><div className="group-content">
       <label>Player name<input aria-label={`Roster name ${player.id}`} value={player.name} onChange={e=>update(player.id,row=>{row.name=e.target.value;})}/></label>
@@ -42,5 +46,6 @@ export function RosterSettings({onSave=()=>{}, initialTeam='clippers'}:{onSave?:
     <button className="wide-button" onClick={()=>{const id=crypto.randomUUID();setPlayers(current=>[...current,{id,name:'',short:'',aliases:[],clinician:'',secondary:'',treatmentMinutes:15,active:selectedTeam==='clippers',team:selectedTeam}]);setExpandedIds(current=>[...current,id]);setMessage('');}}>+ Add player to {teamLabels[selectedTeam]}</button>
     <button className="primary wide-button" onClick={save}>Save roster & teams</button>
     {message&&<p role="status" className={failed?'export-error':'field-help'}>{message}</p>}
+    <details className="roster-history"><summary>Change history ({history.length})</summary><p className="field-help">Timestamps use this device’s time zone. Names are entered by staff and are not verified. History stays in this browser.</p>{history.length===0?<p>No changes recorded yet.</p>:<ol>{history.slice(0,50).map((change,index)=><li key={`${change.at}-${change.playerId}-${index}`}><strong>{change.playerName}</strong> · <time dateTime={change.at}>{new Date(change.at).toLocaleString()}</time> · {change.by}<ul>{change.details.map(detail=><li key={detail}>{detail}</li>)}</ul></li>)}</ol>}</details>
   </div></section>;
 }

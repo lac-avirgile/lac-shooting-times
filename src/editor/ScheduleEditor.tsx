@@ -1,4 +1,5 @@
 import { opponents, homeVenue } from '../config/opponents';
+import { opponentLogo } from '../config/graphicAssets';
 import { emptyRange, field } from '../domain/models';
 import type { Schedule } from '../domain/models';
 import { GroupEditor } from './GroupEditor';
@@ -8,21 +9,24 @@ import { TreatmentPlanner } from './TreatmentPlanner';
 import { ConflictReview } from './ConflictReview';
 
 export function ScheduleEditor({ schedule, edit }: { schedule: Schedule; edit: EditSchedule }) {
-  const setVenue = (draft: Schedule): void => {
+  const setVenue = (draft: Schedule,force=false): void => {
     const venue = draft.game.homeAway.value === 'home' ? homeVenue : opponents.find(o => o.id === draft.game.opponentId);
-    if (draft.game.venue.origin !== 'override') draft.game.venue = field(venue?.venue ?? null, 'inferred', 'opponent-venue-config');
-    if (draft.game.city.origin !== 'override') draft.game.city = field(venue?.city ?? null, 'inferred', 'opponent-city-config');
+    if (force||draft.game.venue.origin !== 'override') draft.game.venue = field(venue?.venue ?? null, 'inferred', 'opponent-venue-config');
+    if (force||draft.game.city.origin !== 'override') draft.game.city = field(venue?.city ?? null, 'inferred', 'opponent-city-config');
   };
   return <div className="schedule-editor">
-    <details className="metadata-editor" id="game"><summary>Game details <small>{schedule.game.date} · {schedule.game.homeAway.value === 'away' ? 'Away' : 'Home'}</small></summary><div className="group-content">
+    <details className="metadata-editor" id="game" open><summary>Game setup <small>{schedule.game.date} · {schedule.game.homeAway.value === 'away' ? 'Away' : schedule.game.homeAway.value === 'home' ? 'Home' : 'Choose home / away'}</small></summary><div className="group-content">
       <div className="two-fields"><label>Date<input type="date" value={schedule.game.date} onChange={e => edit(d => { d.game.date = e.target.value; })} /></label><label>Game number (optional)<input value={schedule.game.number} onChange={e => edit(d => { d.game.number = e.target.value; })} /></label></div>
       <label>Game header label<input value={schedule.game.label??''} placeholder="e.g. PRESEASON GAME 1" onChange={e=>edit(d=>{d.game.label=e.target.value;})}/></label>
       <div className="two-fields"><label>Opponent<select value={schedule.game.opponentId ?? ''} onChange={e => edit(d => { const opponent = opponents.find(o => o.id === e.target.value); d.game.opponentId = opponent?.id ?? null; d.game.opponent = field(opponent?.name ?? null, 'override', 'User opponent edit'); setVenue(d); })}><option value="">Select opponent</option>{opponents.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
       <label>Home / away<select value={schedule.game.homeAway.value ?? ''} onChange={e => edit(d => { d.game.homeAway = field(e.target.value as 'home' | 'away', 'override', 'User home/away edit'); setVenue(d); })}><option value="">Select</option><option value="home">Home (vs)</option><option value="away">Away (at)</option></select></label></div>
+      {schedule.game.opponentId&&<div className="opponent-card"><img src={opponentLogo(schedule.game.opponentId)} width="54" height="54" alt=""/><span>{schedule.game.homeAway.value==='away'?'At':'Vs.'} {schedule.game.opponent.value}</span></div>}
+      <p className="field-help">Suggested arena for the selected home or away team. Special-event games may use another location.</p>
       <FieldControl label="Tip" type="time" value={schedule.game.tip} onChange={v => edit(d => { d.game.tip = field(fromInputTime(v), 'override', 'User tip edit'); if (d.game.tip.value !== null && d.meeting.clock.value !== null && d.meeting.time.origin !== 'override') d.meeting.time = field(d.game.tip.value - d.meeting.clock.value, 'inferred', 'meeting-relative-to-tip'); })} />
       <FieldControl label="Opponent display name" value={schedule.game.opponent} onChange={v => edit(d => { d.game.opponent = field(v || null, 'override', 'User opponent display'); })} />
       <FieldControl label="Venue" value={schedule.game.venue} onChange={v => edit(d => { d.game.venue = field(v || null, 'override', 'User venue'); })} />
       <FieldControl label="City / state" value={schedule.game.city} onChange={v => edit(d => { d.game.city = field(v || null, 'override', 'User city'); })} />
+      <button type="button" onClick={()=>edit(d=>setVenue(d,true))} disabled={!schedule.game.homeAway.value}>Use suggested location</button>
       <label className="check-label"><input type="checkbox" checked={schedule.game.draft} onChange={e => edit(d => { d.game.draft = e.target.checked; })} />Draft message (editor only)</label>
     </div></details>
     <p className="editor-legend">◌ Inferred · amber fields need review · edits take priority</p>

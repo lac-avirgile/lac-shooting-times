@@ -1,6 +1,6 @@
 import { normalize } from './roster';
 export interface Opponent { id: string; name: string; short: string; aliases: string[]; venue: string; city: string }
-export const homeVenue = { venue: 'Intuit Dome', city: 'Los Angeles, CA' };
+export const homeVenue = { venue: 'Intuit Dome', city: 'Inglewood, CA' };
 export const opponents: Opponent[] = [
   { id: 'warriors', name: 'Golden State Warriors', short: 'Warriors', aliases: ['GSW', 'Golden State'], venue: 'Chase Center', city: 'San Francisco, CA' },
   { id: 'thunder', name: 'Oklahoma City Thunder', short: 'Thunder', aliases: ['OKC', 'Oklahoma City'], venue: 'Paycom Center', city: 'Oklahoma City, OK' },
@@ -21,8 +21,8 @@ export const opponents: Opponent[] = [
   { id: 'nuggets', name: 'Denver Nuggets', short: 'Nuggets', aliases: ['DEN', 'Denver'], venue: 'Ball Arena', city: 'Denver, CO' },
   { id: 'rockets', name: 'Houston Rockets', short: 'Rockets', aliases: ['HOU', 'Houston'], venue: 'Toyota Center', city: 'Houston, TX' },
   { id: 'cavaliers', name: 'Cleveland Cavaliers', short: 'Cavaliers', aliases: ['CLE', 'Cleveland', 'Cavs'], venue: 'Rocket Arena', city: 'Cleveland, OH' },
-  { id: '76ers', name: 'Philadelphia 76ers', short: '76ers', aliases: ['PHI', 'Philadelphia', 'Sixers'], venue: 'Wells Fargo Center', city: 'Philadelphia, PA' },
-  { id: 'suns', name: 'Phoenix Suns', short: 'Suns', aliases: ['PHX', 'Phoenix'], venue: 'Footprint Center', city: 'Phoenix, AZ' },
+  { id: '76ers', name: 'Philadelphia 76ers', short: '76ers', aliases: ['PHI', 'Philadelphia', 'Sixers'], venue: 'Xfinity Mobile Arena', city: 'Philadelphia, PA' },
+  { id: 'suns', name: 'Phoenix Suns', short: 'Suns', aliases: ['PHX', 'Phoenix'], venue: 'Mortgage Matchup Center', city: 'Phoenix, AZ' },
   { id: 'jazz', name: 'Utah Jazz', short: 'Jazz', aliases: ['UTA', 'Utah'], venue: 'Delta Center', city: 'Salt Lake City, UT' },
   { id: 'nets', name: 'Brooklyn Nets', short: 'Nets', aliases: ['BKN', 'Brooklyn'], venue: 'Barclays Center', city: 'Brooklyn, NY' },
   { id: 'wizards', name: 'Washington Wizards', short: 'Wizards', aliases: ['WAS', 'Washington'], venue: 'Capital One Arena', city: 'Washington, DC' },

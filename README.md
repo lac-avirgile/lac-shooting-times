@@ -9,6 +9,8 @@ Use the **Roster Management** tab to set LA Clippers and San Diego Clippers
 players to another named team or Unassigned when needed. LA and San Diego
 clinician/treatment defaults remain separate when a player changes teams.
 Changes are saved in that browser only; they do not sync to other devices.
+Roster Management also keeps a local, field-level change history with timestamps.
+Staff can enter an editor name; it is self-reported and is not verified by a login.
 San Diego starts with players from its
 [2025–26 season roster](https://www.statscrew.com/minorbasketball/roster/t-GLGACC/y-2025)
 who are not already assigned to LA. Lorin and Gordon are preassigned across
@@ -16,10 +18,15 @@ the San Diego players as editable starting defaults. Staff should update the
 roster and assignments for the current day before creating a schedule.
 
 The **LA Clippers Creator** and **San Diego Clippers Creator** tabs use those
-saved settings. San Diego's creator uses the team's official logo and its navy,
+saved settings. Each creator has an opponent and home/away selector. The app
+suggests the selected team's usual home arena and city, shows its logo, and
+lets staff edit the location for a specific game. Arena suggestions are not
+verified against that game's official schedule. San Diego's creator uses the team's official logo and its navy,
 red, and Pacific blue colors. The logo is stored locally at
 `public/assets/sandiego-clippers.svg` and comes from the
 [NBA G League team site's logo asset](https://ak-static.cms.nba.com/wp-content/uploads/logos/nbagleague/1612709924/primary/D/logo.svg).
+The other G League logos come from the [official teams page](https://gleague.nba.com/teams).
+The G League arena suggestions use the [current team venue list](https://en.wikipedia.org/wiki/NBA_G_League#Current_teams), with staff review expected for each game.
 
 For San Diego, enter the first shooting time, game tip, and total court minutes.
 Build 4–7 two-player shooting slots. The app divides the entered court window

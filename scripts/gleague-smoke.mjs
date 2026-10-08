@@ -18,6 +18,7 @@ try {
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto(url);
   await page.getByRole('button',{name:'Roster Management'}).click();
+  await page.getByLabel('Editor name').fill('QA Staff');
   const names=['Fletcher Loyer','Bradley Beal','Isaiah Jackson','Rui Hachimura','Jordan Miller','Darius Garland','Brandon Ingram','Derrick Jones Jr.'];
   for(const name of names)await page.getByLabel(`Team for ${name}`).selectOption('g-league');
   await page.locator('.team-tabs button').filter({hasText:'San Diego Clippers'}).click();
@@ -28,7 +29,15 @@ try {
   }
   await page.getByRole('button',{name:'Save roster & teams'}).click();
   await page.reload();
+  await page.getByRole('button',{name:'Roster Management'}).click();
+  assert((await page.locator('.roster-history').textContent()).includes('QA Staff'));
   await page.getByRole('button',{name:'San Diego Clippers Creator'}).click();
+  await page.getByLabel('San Diego opponent').selectOption({label:'Santa Cruz Warriors'});
+  await page.getByLabel('San Diego home or away').selectOption('away');
+  assert.equal(await page.getByLabel('San Diego venue').inputValue(),'Kaiser Permanente Arena');
+  await page.getByLabel('San Diego venue').fill('Neutral Arena');
+  await page.getByRole('button',{name:'Use suggested location'}).click();
+  assert.equal(await page.getByLabel('San Diego venue').inputValue(),'Kaiser Permanente Arena');
   await page.getByLabel('First shooting time').fill('15:00');
   await page.getByLabel('Game tip').fill('17:00');
   await page.getByLabel('Total court minutes').fill('60');
@@ -42,6 +51,15 @@ try {
   const download=await downloadPromise;
   assert(download.suggestedFilename().includes('san-diego-clippers_shooting-times.png'));
   assert.equal(await page.locator('svg.pregame-graphic image[href="/assets/sandiego-clippers.svg"]').count(),1);
+  await page.getByRole('button',{name:'LA Clippers Creator'}).click();
+  await page.getByRole('button',{name:'Preview current roster example'}).click();
+  assert.equal(await page.locator('#game select').count(),2);
+  await page.locator('#game select').nth(0).selectOption('suns');
+  await page.locator('#game select').nth(1).selectOption('away');
+  assert.equal(await page.getByLabel('Venue',{exact:true}).inputValue(),'Mortgage Matchup Center');
+  await page.getByLabel('Venue',{exact:true}).fill('Neutral Arena');
+  await page.getByRole('button',{name:'Use suggested location'}).click();
+  assert.equal(await page.getByLabel('Venue',{exact:true}).inputValue(),'Mortgage Matchup Center');
   assert.deepEqual(errors,[]);
-  console.log('G League roster transfer, schedule, and PNG export passed.');
+  console.log('Roster history, both opponent selectors, venue overrides, and San Diego PNG export passed.');
 } finally {await browser?.close();server.kill();}

@@ -3,19 +3,23 @@ import { playersOnTeam, type RosterEntry } from '../config/roster';
 import { formatTime, today } from '../domain/time';
 import { renderPng } from '../graphic/exportPng';
 import { buildGLeaguePlan, parseClock } from './schedule';
+import { gLeagueHome, gLeagueOpponents } from '../config/gleagueOpponents';
 
 const emptyPair=():[string,string]=>['',''];
 const clock=(value:string):number=>value?parseClock(value):NaN;
 const label=(start:number,end:number):string=>Number.isFinite(start)&&Number.isFinite(end)?`${formatTime(start)} – ${formatTime(end)}`:'Time needed';
 
-function GLeagueGraphic({plan,date,tip,roster}:{plan:ReturnType<typeof buildGLeaguePlan>;date:string;tip:number;roster:RosterEntry[]}) {
+function GLeagueGraphic({plan,date,tip,roster,opponentId,homeAway,venue,city}:{plan:ReturnType<typeof buildGLeaguePlan>;date:string;tip:number;roster:RosterEntry[];opponentId:string;homeAway:string;venue:string;city:string}) {
   const top=220,rowHeight=108;
+  const opponent=gLeagueOpponents.find(team=>team.id===opponentId);
   return <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" className="pregame-graphic" role="img" aria-label="San Diego Clippers shooting and treatment schedule">
     <rect width="1920" height="1080" fill="#f7f9fc"/>
     <rect width="1920" height="174" fill="#12173f"/><rect y="174" width="1920" height="7" fill="#4891ce"/><rect y="181" width="1920" height="3" fill="#c8102e"/>
     <image href="/assets/sandiego-clippers.svg" x="42" y="13" width="150" height="156"/>
+    {opponent&&<image href={opponent.logo} x="1735" y="20" width="135" height="135"/>}
     <text x="218" y="80" fill="white" fontFamily="Roboto Condensed,Arial,sans-serif" fontWeight="700" fontSize="57">SAN DIEGO CLIPPERS</text>
-    <text x="220" y="140" fill="#cbd8e7" fontFamily="Roboto,Arial,sans-serif" fontSize="27">SHOOTING TIMES  ·  {date}  ·  TIP {Number.isFinite(tip)?formatTime(tip):'TIME NEEDED'}  ·  COURT {label(plan.slots[0]?.start??0,plan.end)}</text>
+    <text x="220" y="129" fill="#cbd8e7" fontFamily="Roboto,Arial,sans-serif" fontSize="25">{date}  ·  {homeAway==='away'?'AT':'VS.'} {opponent?.name??'OPPONENT NEEDED'}  ·  TIP {Number.isFinite(tip)?formatTime(tip):'TIME NEEDED'}</text>
+    <text x="220" y="163" fill="#cbd8e7" fontFamily="Roboto,Arial,sans-serif" fontSize="22">{venue||'VENUE NEEDED'} · {city||'CITY NEEDED'}  ·  COURT {label(plan.slots[0]?.start??0,plan.end)}</text>
     <text x="72" y={top} fill="#344b69" fontFamily="Roboto Condensed,Arial,sans-serif" fontWeight="700" fontSize="24">SLOT / SHOOTING</text>
     <text x="550" y={top} fill="#344b69" fontFamily="Roboto Condensed,Arial,sans-serif" fontWeight="700" fontSize="24">PLAYERS</text>
     <text x="1035" y={top} fill="#344b69" fontFamily="Roboto Condensed,Arial,sans-serif" fontWeight="700" fontSize="24">TREATMENT</text>
@@ -46,6 +50,11 @@ export function GLeagueApp({settingsWarning}:{settingsWarning:string|null}) {
   const [start,setStart]=useState('');
   const [tip,setTip]=useState('');
   const [totalMinutes,setTotalMinutes]=useState(60);
+  const [opponentId,setOpponentId]=useState('');
+  const [homeAway,setHomeAway]=useState('');
+  const [venue,setVenue]=useState('');
+  const [city,setCity]=useState('');
+  const [locationOverride,setLocationOverride]=useState(false);
   const [pairs,setPairs]=useState<[string,string][]>(()=>Array.from({length:4},emptyPair));
   const [treatmentMinutes,setTreatmentMinutes]=useState<Record<string,number>>({});
   const [exportError,setExportError]=useState('');
@@ -53,9 +62,18 @@ export function GLeagueApp({settingsWarning}:{settingsWarning:string|null}) {
   const svgRef=useRef<SVGSVGElement>(null);
   const available=useMemo(()=>playersOnTeam('g-league'),[]);
   const plan=useMemo(()=>buildGLeaguePlan({start:clock(start),tip:clock(tip),totalMinutes,pairs,treatmentMinutes},available),[start,tip,totalMinutes,pairs,treatmentMinutes,available]);
+  const opponent=gLeagueOpponents.find(team=>team.id===opponentId);
+  const suggestedLocation=homeAway==='home'?gLeagueHome:homeAway==='away'?opponent:null;
+  const gameIssues=[...(!opponent?['Choose an opponent.']:[]),...(!homeAway?['Choose home or away.']:[]),...(!venue.trim()?['Enter the game venue.']:[]),...(!city.trim()?['Enter the game city.']:[])];
+  const updateLocation=(nextOpponentId:string,nextHomeAway:string):void=>{
+    if(locationOverride)return;
+    const nextOpponent=gLeagueOpponents.find(team=>team.id===nextOpponentId);
+    const suggested=nextHomeAway==='home'?gLeagueHome:nextHomeAway==='away'?nextOpponent:null;
+    setVenue(suggested?.venue??'');setCity(suggested?.city??'');
+  };
   const updatePair=(index:number,side:0|1,id:string):void=>setPairs(current=>current.map((pair,i)=>i===index?pair.map((entry,j)=>j===side?id:entry) as [string,string]:pair));
   const download=async():Promise<void>=>{
-    if(!svgRef.current||plan.issues.length)return;
+    if(!svgRef.current||plan.issues.length||gameIssues.length)return;
     setExporting(true);setExportError('');
     try {
       const blob=await renderPng(svgRef.current);
@@ -69,6 +87,10 @@ export function GLeagueApp({settingsWarning}:{settingsWarning:string|null}) {
     <main><aside className="input-panel">
       <h2>Game setup</h2><p className="field-help">Enter the first shooting time, game tip, and total minutes available for shooting. The app divides that window across 4–7 consecutive two-player slots.</p>
       <label>Date<input type="date" value={date} onChange={e=>setDate(e.target.value)}/></label>
+      <div className="two-fields"><label>Opponent<select aria-label="San Diego opponent" value={opponentId} onChange={e=>{setOpponentId(e.target.value);updateLocation(e.target.value,homeAway);}}><option value="">Select opponent</option>{gLeagueOpponents.map(team=><option key={team.id} value={team.id}>{team.name}</option>)}</select></label><label>Home / away<select aria-label="San Diego home or away" value={homeAway} onChange={e=>{setHomeAway(e.target.value);updateLocation(opponentId,e.target.value);}}><option value="">Select</option><option value="home">Home (vs)</option><option value="away">Away (at)</option></select></label></div>
+      {opponent&&<div className="opponent-card"><img src={opponent.logo} width="54" height="54" alt=""/><span>{homeAway==='away'?'At':'Vs.'} {opponent.name}</span></div>}
+      <div className="two-fields"><label>Venue<input aria-label="San Diego venue" value={venue} onChange={e=>{setVenue(e.target.value);setLocationOverride(true);}}/></label><label>City / state<input aria-label="San Diego city" value={city} onChange={e=>{setCity(e.target.value);setLocationOverride(true);}}/></label></div>
+      <button type="button" disabled={!suggestedLocation} onClick={()=>{setVenue(suggestedLocation?.venue??'');setCity(suggestedLocation?.city??'');setLocationOverride(false);}}>Use suggested location</button><p className="field-help">The team’s usual home arena is a starting point. Edit the location for another arena or neutral-site game.</p>
       <div className="two-fields"><label>First shooting time<input aria-label="First shooting time" type="time" value={start} onChange={e=>setStart(e.target.value)}/></label><label>Game tip<input aria-label="Game tip" type="time" value={tip} onChange={e=>setTip(e.target.value)}/></label></div>
       <label>Total court minutes<input aria-label="Total court minutes" type="number" min="4" max="180" step="1" value={totalMinutes} onChange={e=>setTotalMinutes(Number(e.target.value))}/></label>
       {available.length===0&&<p className="field-help">Add or move players to San Diego in Roster Management, then return here.</p>}
@@ -83,9 +105,9 @@ export function GLeagueApp({settingsWarning}:{settingsWarning:string|null}) {
       </fieldset>)}
       <button className="wide-button" disabled={pairs.length>=7} onClick={()=>setPairs(current=>[...current,emptyPair()])}>+ Add shooting slot</button>
     </aside><section className="preview-panel">
-      <div className="preview-toolbar"><div><h2>San Diego schedule preview</h2><p>Each player gets treatment, then a 15-minute off-court warmup immediately before shooting.</p></div><button className="primary" disabled={plan.issues.length>0||exporting} onClick={()=>void download()}>{exporting?'Rendering PNG…':'Download PNG'}</button></div>
-      <div className="graphic-frame"><div ref={node=>{svgRef.current=node?.querySelector('svg')??null;}}><GLeagueGraphic plan={plan} date={date} tip={clock(tip)} roster={available}/></div></div>
-      {plan.issues.length>0&&<div className="diagnostics has-errors"><div className="group-content"><strong>Complete before download</strong><ul>{plan.issues.map(issue=><li key={issue}>{issue}</li>)}</ul></div></div>}
+      <div className="preview-toolbar"><div><h2>San Diego schedule preview</h2><p>Each player gets treatment, then a 15-minute off-court warmup immediately before shooting.</p></div><button className="primary" disabled={plan.issues.length>0||gameIssues.length>0||exporting} onClick={()=>void download()}>{exporting?'Rendering PNG…':'Download PNG'}</button></div>
+      <div className="graphic-frame"><div ref={node=>{svgRef.current=node?.querySelector('svg')??null;}}><GLeagueGraphic plan={plan} date={date} tip={clock(tip)} roster={available} opponentId={opponentId} homeAway={homeAway} venue={venue} city={city}/></div></div>
+      {(plan.issues.length>0||gameIssues.length>0)&&<div className="diagnostics has-errors"><div className="group-content"><strong>Complete before download</strong><ul>{[...gameIssues,...plan.issues].map(issue=><li key={issue}>{issue}</li>)}</ul></div></div>}
       {exportError&&<p role="alert" className="export-error">{exportError}</p>}
     </section></main>
     <footer>San Diego Clippers schedule · Review all player and clinician assignments before sharing.</footer>

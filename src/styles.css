@@ -137,6 +137,13 @@ fieldset { border-radius: 6px; padding: 12px; margin: 16px 0; }
 .sandiego-header { background: linear-gradient(110deg,#12173f,#244d7b); border-bottom-color: #4891ce; }
 .sandiego-header img { object-fit: contain; }
 .roster-page { display: block; max-width: 1160px; margin: 24px auto; padding: 0 20px 40px; }
+.roster-updated { grid-column: 1 / -1; color: #52657c; font-size: 12px; }
+.roster-history { margin-top: 18px; padding: 14px 18px; border: 1px solid #cbd7e3; border-radius: 10px; background: #fff; }
+.roster-history > ol { max-height: 360px; overflow: auto; padding-left: 22px; }
+.roster-history > ol > li { margin: 10px 0; padding-bottom: 8px; border-bottom: 1px solid #e3eaf1; }
+.roster-history ul { padding-left: 20px; margin: 4px 0; }
+.opponent-card { display: flex; align-items: center; gap: 12px; margin: 10px 0; padding: 8px 12px; border: 1px solid #d9e1eb; border-radius: 8px; background: #f8fbfe; font-weight: 700; }
+.opponent-card img { object-fit: contain; flex: none; }
 .roster-management { background: white; border: 1px solid #d5e0e9; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px #071a3410; }
 .roster-management-header { padding: 24px 30px; background: linear-gradient(110deg,#12173f,#244d7b); color: white; border-bottom: 5px solid #4891ce; }
 .roster-management-header h1 { font-size: 27px; }

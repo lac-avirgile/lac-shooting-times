@@ -20,7 +20,7 @@ export function SceneGraphic({scene}:{scene:GraphicScene}) {
     {scene.elements.map((element,index)=>{
       if(element.kind==='rect') return <rect key={index} x={element.x} y={element.y} width={element.width} height={element.height} fill={element.fill} stroke={element.stroke} rx={element.radius} opacity={element.opacity}/>;
       if(element.kind==='line') return <line key={index} x1={element.x1} y1={element.y1} x2={element.x2} y2={element.y2} stroke={element.stroke} strokeWidth={element.width}/>;
-      if(element.kind==='path') return <path key={index} d={element.d} fill={element.fill} stroke={element.stroke} strokeWidth={element.width}/>;
+      if(element.kind==='path') return <path key={index} d={element.d} fill={element.fill} stroke={element.stroke} strokeWidth={element.width} opacity={element.opacity}/>;
       if(element.kind==='image') return <image key={index} href={element.href} x={element.x} y={element.y} width={element.width} height={element.height} preserveAspectRatio="xMidYMid meet" filter={element.filter} opacity={element.opacity}/>;
       if(element.kind==='crop-image') return <g key={index}>
         {element.mask&&<defs><mask id={`crop-mask-${index}`} maskUnits="userSpaceOnUse" x={element.x} y={element.y} width={element.width} height={element.height}><rect x={element.x} y={element.y} width={element.width} height={element.height} fill="white" mask={element.mask}/></mask></defs>}

@@ -2,7 +2,7 @@
 export const vancouverGame={
   name:'Oct 10 · Vancouver at Raptors',
   date:'2026-10-10',
-  label:'DRAFT · PRESEASON · VANCOUVER',
+  label:'PRESEASON · VANCOUVER',
   opponentId:'raptors',
   homeAway:'away' as const,
   tip:15*60+30,
@@ -10,13 +10,14 @@ export const vancouverGame={
   city:'Vancouver, BC',
   draft:true,
   activeAthleteIds:['telfort'],
-  unavailableClinicians:['Maggie'],
+  unavailableClinicians:['Maggie','Lorin'],
   treatmentOverrides:[
     {id:'garland',clinician:'Joann'},
     {id:'telfort',clinician:'Jesse'},
     {id:'kawamura',clinician:'Dan'},
     {id:'jones',clinician:'Jasen'},
     {id:'wagler',clinician:'Jasen'},
+    {id:'wesley',clinician:'Colby'},
   ],
   text:`Shooting times vs Raptors
 

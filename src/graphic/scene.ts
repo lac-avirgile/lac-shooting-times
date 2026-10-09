@@ -6,7 +6,7 @@ import { wrapParts, type TextPart } from './layout';
 export type SceneElement =
   | {kind:'rect';x:number;y:number;width:number;height:number;fill:string;stroke?:string;radius?:number;opacity?:number}
   | {kind:'line';x1:number;y1:number;x2:number;y2:number;stroke:string;width:number}
-  | {kind:'path';d:string;fill:string;stroke?:string;width?:number}
+  | {kind:'path';d:string;fill:string;stroke?:string;width?:number;opacity?:number}
   | {kind:'text';x:number;y:number;text:string;size:number;fill:string;weight:number;font:string;parts?:TextPart[];block?:string}
   | {kind:'crop-image';x:number;y:number;width:number;height:number;href:string;crop:[number,number,number,number];sourceWidth:number;sourceHeight:number;mask?:string;filter?:string;opacity?:number}
   | {kind:'image';x:number;y:number;width:number;height:number;href:string;filter?:string;opacity?:number};
@@ -32,7 +32,7 @@ export class SceneBuilder {
   diagnostics:Diagnostic[]=[];
   rect(x:number,y:number,width:number,height:number,fill:string,stroke?:string,radius?:number,opacity?:number):void {this.elements.push({kind:'rect',x,y,width,height,fill,stroke,radius,opacity});}
   line(x1:number,y1:number,x2:number,y2:number,stroke:string,width=1):void {this.elements.push({kind:'line',x1,y1,x2,y2,stroke,width});}
-  path(d:string,fill:string,stroke?:string,width?:number):void {this.elements.push({kind:'path',d,fill,stroke,width});}
+  path(d:string,fill:string,stroke?:string,width?:number,opacity?:number):void {this.elements.push({kind:'path',d,fill,stroke,width,opacity});}
   image(href:string,x:number,y:number,width:number,height:number,filter?:string,opacity?:number):void {this.elements.push({kind:'image',href,x,y,width,height,filter,opacity});}
   crop(href:string,x:number,y:number,width:number,height:number,crop:[number,number,number,number],sourceWidth=1672,sourceHeight=941,mask?:string,filter?:string,opacity?:number):void {
     this.elements.push({kind:'crop-image',href,x,y,width,height,crop,sourceWidth,sourceHeight,mask,filter,opacity});

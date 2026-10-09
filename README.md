@@ -51,11 +51,13 @@ in under `public/assets/`.
 
 The LA creator includes a draft for the October 10, 2026 Raptors game. It keeps
 the supplied shooting order and workout staff, with daily medical assignments:
-DG–Joann, Jahmyl–Jesse, Yuki–Dan, DJ–Jasen, and Keaton–Jasen. These changes do
+DG–Joann, Jahmyl–Jesse, Yuki–Dan, DJ–Jasen, Keaton–Jasen, and Blake–Colby.
+Maggie and Lorin are unavailable for this game. These changes do
 not alter roster defaults. The [official NBA schedule](https://www.nba.com/schedule/clippers)
 places this away preseason game at Rogers Arena in Vancouver, BC, with a 3:30 PM
-Pacific tip; the source message says “vs Raptors” and omits AM/PM. The draft
-uses the confirmed game details. Staff can review and edit it before sharing.
+Pacific tip; the source message says “vs Raptors” and omits AM/PM. The graphic
+uses the confirmed game details and omits the draft label. Staff can review
+and edit it before sharing.
 
 Local basketball-operations graphic generator. Paste a daily message, parse, review the immediately rendered graphic, correct highlighted timings, and download a lossless 16:9 PNG at 4000 × 2250 minimum. Dense schedules export larger to preserve generous spacing and legible type.
 

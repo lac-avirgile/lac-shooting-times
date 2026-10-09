@@ -19,8 +19,9 @@ try {
   const graphic=page.locator('svg.pregame-graphic');
   const words=await graphic.textContent();
   assert(words.includes('ROGERS ARENA')||words.includes('Rogers Arena'));
-  for(const name of ['JAHMYL','JOANN','JASEN','JESSE'])assert(words.toUpperCase().includes(name));
-  assert(!words.toUpperCase().includes('MAGGIE'));
+  for(const name of ['JAHMYL','JOANN','JASEN','JESSE','COLBY'])assert(words.toUpperCase().includes(name));
+  for(const name of ['MAGGIE','LORIN','DRAFT'])assert(!words.toUpperCase().includes(name));
+  assert.equal(await graphic.locator('path[fill="url(#panel)"][opacity="0.78"]').count(),9);
   assert.equal(await page.locator('.diagnostics.has-errors').count(),0);
   const output=fileURLToPath(new URL('../qa-output/2026-10-10_at_raptors_pregame-workout.png',import.meta.url));
   await mkdir(fileURLToPath(new URL('../qa-output/',import.meta.url)),{recursive:true});
@@ -30,7 +31,7 @@ try {
   assert.equal(download.suggestedFilename(),'2026-10-10_at_raptors_pregame-workout.png');
   await download.saveAs(output);
   const source=await page.locator('#raw-text').inputValue();
-  await page.locator('#raw-text').fill(`Initial shooting times for tomorrow. Let me know if this works for medical pairings.\n\n${source}\n\n--> DG will be with Joann; Jahmyl with Jesse; Yuki with Dan; DJ and Keaton with Jasen. Maggie is not on this trip.`);
+  await page.locator('#raw-text').fill(`Initial shooting times for tomorrow. Let me know if this works for medical pairings.\n\n${source}\n\n--> DG will be with Joann; Jahmyl with Jesse; Yuki with Dan; DJ and Keaton with Jasen. Maggie and Lorin are not on this trip; Blake goes to Colby.`);
   await page.getByRole('button',{name:'Parse Schedule'}).click();
   assert((await page.locator('svg.pregame-graphic').textContent()).includes('Rogers Arena'));
   assert.equal(await page.locator('.diagnostics.has-errors').count(),0);

@@ -8,6 +8,6 @@ export const originalDesign = {
   headerLeading: 36,
   rowLeading: 34,
   metadataSize: 24,
-  cardOpacity: 0.93,
+  cardOpacity: 0.86,
   watermarkOpacity: 0.7,
 } as const;

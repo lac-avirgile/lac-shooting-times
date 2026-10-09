@@ -48,9 +48,9 @@ function plan(group:Group,index:number,width:number,horizontal:boolean,compact=f
 }
 function card(b:SceneBuilder,p:Card,x:number,y:number,width:number,dark:boolean,horizontal:boolean):void {
   const ink=dark?'#FFFFFF':brand.navy,head=headerHeight(p.names),id=p.group.id;
-  if(dark) b.path(`M${x+12} ${y}H${x+width}V${y+p.height-12}L${x+width-12} ${y+p.height}H${x}V${y+12}Z`,'url(#panel)','#6383A4',1);
-  else b.rect(x,y,width,p.height,'#FFFFFF','#CCD4DE',6);
-  b.rect(x,y,width,head,dark?'#112B49':brand.navy);
+  if(dark) b.path(`M${x+12} ${y}H${x+width}V${y+p.height-12}L${x+width-12} ${y+p.height}H${x}V${y+12}Z`,'url(#panel)','#6383A4',1,0.78);
+  else b.rect(x,y,width,p.height,'#FFFFFF','#CCD4DE',6,0.86);
+  b.rect(x,y,width,head,dark?'#112B49':brand.navy,undefined,undefined,dark?0.88:0.94);
   b.path(`M${x} ${y}H${x+72}L${x+62} ${y+head}H${x}Z`,brand.red);
   b.text(String(p.index+1).padStart(2,'0'),x+20,opticalBaseline(y+head/2,30),30,'white',400,42,id,display);
   p.names.forEach((name,i)=>b.text(name,x+96,opticalBaseline(y+head/2+(i-(p.names.length-1)/2)*space.headerLeading,space.nameSize),space.nameSize,'white',700,width-120,id,font));
@@ -75,7 +75,7 @@ function card(b:SceneBuilder,p:Card,x:number,y:number,width:number,dark:boolean,
       const parallel=p.compact&&p.group.performance.applicable&&i>0,rowPadding=p.padding/(parallel?2:p.rows.length),h=(parallel?Math.max(...p.rows.slice(1).map(rowHeight)):rowHeight(r))+rowPadding;
       if(i===1)pairY=cy;
       const ry=parallel?pairY:cy,rx=x+(parallel&&i===2?width/2:0),rw=parallel?width/2:width;
-      if(i%2===1||parallel)b.rect(rx+1,ry,rw-2,h,'#F0F3F6');
+      if(i%2===1||parallel)b.rect(rx+1,ry,rw-2,h,'#F0F3F6',undefined,undefined,0.76);
       phaseIcon(b,r.icon,rx+space.inset,ry+(h-space.iconSize)/2,space.iconSize,false);
       b.text(r.label,rx+70,opticalBaseline(ry+h/2,space.labelSize),space.labelSize,ink,400,parallel?120:140,id,display);
       r.lines.forEach((text,j)=>b.rich(exceptionParts(text),rx+216,opticalBaseline(ry+h/2+(j-(r.lines.length-1)/2)*space.rowLeading,space.bodySize),space.bodySize,font,r.exception?brand.red:ink,rw-240,id));
@@ -97,7 +97,7 @@ function masthead(b:SceneBuilder,s:Schedule,id:ReferenceDesignId,canvasWidth=192
   const columnWidth=style.width+(canvasWidth-1920)/2;
   b.rect(0,0,canvasWidth,canvasHeight,style.dark?'url(#arena)':'white');
   if(style.dark){
-    b.image(brand.logo,canvasWidth-750,30,710,710,undefined,0.045);
+    b.image(brand.logo,canvasWidth-750,30,710,710,undefined,0.12);
     if(s.game.homeAway.value==='home')b.crop(designArt.arena,0,canvasHeight-177,1260,177,[0,834,830,107],1672,941,'url(#arena-photo)',undefined,0.72);
     b.rect(0,0,canvasWidth,canvasHeight,'url(#arena-lines)');
     b.path(`M48 32H${48+columnWidth}L${26+columnWidth} 160H48Z`,'url(#event-red)');

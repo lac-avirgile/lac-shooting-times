@@ -31,16 +31,16 @@ function phaseIcon(b:SceneBuilder,href:string,x:number,y:number,size:number,dark
   b.crop(href,x+padding,y+(size-h)/2,w,h,bounds,96,96,undefined,dark?'url(#white-icon)':undefined);
 }
 function plan(group:Group,index:number,width:number,horizontal:boolean,compact=false):Card {
-  const names=lines(group.athletes.map(a=>a.name.toUpperCase()).join(' + '),width-128,space.nameSize,700,font);
+  const names=lines(group.athletes.map(a=>a.name.toUpperCase()).join(' + '),width-(horizontal&&group.clock.value!==null?338:128),space.nameSize,700,font);
   const widths=phaseWidths(width,group.performance.applicable);
-  const tableWidth=horizontal?widths[0]:width-240;
+  const tableWidth=horizontal?widths[0]-46:width-240;
   const treatments=treatmentLines(group).flatMap(p=>lines(p.text,tableWidth,space.bodySize,400,font));
   const tableLines=horizontal?treatments:lines(`${rangeLabel(group.table)}  (${treatmentLines(group).map(p=>p.text).join(' / ')})`,tableWidth,space.bodySize,400,font);
   const rows:Row[]=[{label:'TABLE',icon:brand.icons.table,lines:tableLines,headingRange:horizontal?rangeLabel(group.table):undefined,exception:group.table.start.value===null}];
   const phaseWidth=compact&&group.performance.applicable?width/2-240:width-240;
   if(group.performance.applicable) rows.push({label:'PERFORMANCE',icon:brand.icons.performance,lines:horizontal?[]:lines(rangeLabel(group.performance),phaseWidth,space.bodySize,400,font),headingRange:horizontal?rangeLabel(group.performance):undefined,exception:group.performance.start.value===null});
   rows.push({label:'COURT',icon:brand.icons.court,lines:horizontal?[]:lines(rangeLabel(group.court),phaseWidth,space.bodySize,400,font),headingRange:horizontal?rangeLabel(group.court):undefined,exception:group.court.end.value===null});
-  const noteText=[group.kind==='normal'?'':groupKind(group),group.location!=='main'||group.walkthroughState!=='none'?locationLabel(group):'',group.clock.value===null?'':`${group.clock.value}:00 ON THE CLOCK`,group.notes].filter(Boolean).join(' · ');
+  const noteText=[group.kind==='normal'?'':groupKind(group),group.location!=='main'||group.walkthroughState!=='none'?locationLabel(group):'',horizontal||group.clock.value===null?'':`${group.clock.value}:00 ON THE CLOCK`,group.notes].filter(Boolean).join(' · ');
   const notes=noteText?lines(noteText,width-space.inset*2,22,700,font):[];
   const head=headerHeight(names);
   const body=compact&&group.performance.applicable?rowHeight(rows[0])+Math.max(...rows.slice(1).map(rowHeight)):rows.reduce((sum,r)=>sum+rowHeight(r),0);
@@ -54,7 +54,12 @@ function card(b:SceneBuilder,p:Card,x:number,y:number,width:number,dark:boolean,
   b.rect(x,y,width,head,dark?'#112B49':brand.navy,undefined,undefined,dark?0.88:0.94);
   b.path(`M${x} ${y}H${x+72}L${x+62} ${y+head}H${x}Z`,brand.red);
   b.text(String(p.index+1).padStart(2,'0'),x+20,opticalBaseline(y+head/2,30),30,'white',400,42,id,display);
-  p.names.forEach((name,i)=>b.text(name,x+96,opticalBaseline(y+head/2+(i-(p.names.length-1)/2)*space.headerLeading,space.nameSize),space.nameSize,'white',700,width-120,id,font));
+  const nameWidth=width-(horizontal&&p.group.clock.value!==null?338:128);
+  p.names.forEach((name,i)=>b.text(name,x+96,opticalBaseline(y+head/2+(i-(p.names.length-1)/2)*space.headerLeading,space.nameSize),space.nameSize,'white',700,nameWidth,id,font));
+  if(horizontal&&p.group.clock.value!==null){
+    b.rect(x+width-226,y+(head-36)/2,206,36,'#24415C',undefined,18,0.88);
+    b.text(`${p.group.clock.value}:00 ON THE CLOCK`,x+width-214,opticalBaseline(y+head/2,20),20,'#D9E5F2',700,184,id,font);
+  }
   let cy=y+head+(horizontal?p.padding/2:0);
   if(horizontal) {
     let rx=x+space.inset;
@@ -65,8 +70,8 @@ function card(b:SceneBuilder,p:Card,x:number,y:number,width:number,dark:boolean,
       if(i) b.line(rx-space.groupGap/2,cy+24,rx-space.groupGap/2,cy+bodyHeight-16,'#426180');
       phaseIcon(b,r.icon,rx,cy+24,space.iconSize,true);
       b.text(r.label,rx+46,opticalBaseline(cy+39,space.labelSize),space.labelSize,ink,400,rw-46,id,display);
-      if(r.headingRange)b.text(r.headingRange,rx,opticalBaseline(cy+75,space.bodySize),space.bodySize,r.exception?'#FF91A7':ink,700,rw,id,font);
-      r.lines.forEach((text,j)=>b.rich(exceptionParts(text),rx,opticalBaseline(cy+112+j*space.rowLeading,space.bodySize),space.bodySize,font,r.exception?'#FF91A7':'#D9E5F2',rw,id));
+      if(r.headingRange)b.text(r.headingRange,rx+46,opticalBaseline(cy+75,space.bodySize),space.bodySize,r.exception?'#FF91A7':ink,700,rw-46,id,font);
+      r.lines.forEach((text,j)=>b.rich(exceptionParts(text),rx+46,opticalBaseline(cy+112+j*space.rowLeading,space.bodySize),space.bodySize,font,r.exception?'#FF91A7':'#D9E5F2',rw-46,id));
       rx+=rw+space.groupGap;
     });
     cy+=bodyHeight+p.padding/2;

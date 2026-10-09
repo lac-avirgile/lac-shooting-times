@@ -6,7 +6,9 @@ import {referenceDesign} from '../src/graphic/referenceDesign';
 import {referenceDesigns,type ReferenceDesignId} from '../src/config/referenceDesigns';
 import {applyTreatmentPlan,planTreatments} from '../src/scheduler/treatmentPlanner';
 import {brand} from '../src/config/brand';
-import {rangeLabel} from '../src/graphic/scene';
+import {rangeLabel,type SceneElement} from '../src/graphic/scene';
+
+type TextElement=Extract<SceneElement,{kind:'text'}>;
 
 it('centers the Sidebar title in its masthead and omits unrequested slogans',()=>{
   const scene=referenceDesign(resolveSchedule(parseSchedule(currentRosterExample.text)),'reference-2');
@@ -21,17 +23,24 @@ it('centers the Sidebar title in its masthead and omits unrequested slogans',()=
 it('aligns Arena phase labels and times on matching rows, with treatment details below',()=>{
   const schedule=resolveSchedule(parseSchedule(currentRosterExample.text));
   const group=schedule.groups.find(item=>item.performance.applicable)!;
-  const elements=referenceDesign(schedule,'reference-4').elements.filter(element=>element.kind==='text'&&element.block===group.id);
-  const labels=['TABLE','PERFORMANCE','COURT'].map(label=>elements.find(element=>element.kind==='text'&&element.text===label)!);
-  const times=[group.table,group.performance,group.court].map(phase=>elements.find(element=>element.kind==='text'&&element.text===rangeLabel(phase))!);
+  const elements=referenceDesign(schedule,'reference-4').elements.filter((element):element is TextElement=>element.kind==='text'&&element.block===group.id);
+  const labels=['TABLE','PERFORMANCE','COURT'].map(label=>elements.find(element=>element.text===label)!);
+  const times=[group.table,group.performance,group.court].map(phase=>elements.find(element=>element.text===rangeLabel(phase))!);
   expect(new Set(labels.map(label=>label.y)).size).toBe(1);
   expect(new Set(times.map(time=>time.y)).size).toBe(1);
   times.forEach((time,index)=>{
-    expect(time.x).toBe(labels[index].x-46);
+    expect(time.x).toBe(labels[index].x);
     expect(time.y).toBeGreaterThan(labels[index].y);
   });
-  const detail=elements.find(element=>element.kind==='text'&&element.text.includes('·')&&element.y>times[0].y);
+  const detail=elements.find(element=>element.text.includes('·')&&element.y>times[0].y);
   expect(detail).toBeDefined();
+  expect(detail?.x).toBe(labels[0].x);
+  const clockGroup=schedule.groups.find(item=>item.clock.value!==null)!;
+  const clockElements=referenceDesign(schedule,'reference-4').elements.filter((element):element is TextElement=>element.kind==='text'&&element.block===clockGroup.id);
+  const clock=clockElements.find(element=>element.text===`${clockGroup.clock.value}:00 ON THE CLOCK`)!;
+  const name=clockElements.find(element=>element.text.includes(clockGroup.athletes[0].name.toUpperCase()))!;
+  expect(clock.x).toBeGreaterThan(name.x);
+  expect(clock.y-20*0.36).toBeCloseTo(name.y-26*0.36);
 });
 
 describe.each(Object.keys(referenceDesigns) as ReferenceDesignId[])('%s reference-driven design',design=>{

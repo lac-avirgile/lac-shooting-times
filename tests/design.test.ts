@@ -18,6 +18,22 @@ it('centers the Sidebar title in its masthead and omits unrequested slogans',()=
   expect(text).not.toContain('BASKETBALL OPERATIONS');
 });
 
+it('aligns Arena phase labels and times on matching rows, with treatment details below',()=>{
+  const schedule=resolveSchedule(parseSchedule(currentRosterExample.text));
+  const group=schedule.groups.find(item=>item.performance.applicable)!;
+  const elements=referenceDesign(schedule,'reference-4').elements.filter(element=>element.kind==='text'&&element.block===group.id);
+  const labels=['TABLE','PERFORMANCE','COURT'].map(label=>elements.find(element=>element.kind==='text'&&element.text===label)!);
+  const times=[group.table,group.performance,group.court].map(phase=>elements.find(element=>element.kind==='text'&&element.text===rangeLabel(phase))!);
+  expect(new Set(labels.map(label=>label.y)).size).toBe(1);
+  expect(new Set(times.map(time=>time.y)).size).toBe(1);
+  times.forEach((time,index)=>{
+    expect(time.x).toBe(labels[index].x-46);
+    expect(time.y).toBeGreaterThan(labels[index].y);
+  });
+  const detail=elements.find(element=>element.kind==='text'&&element.text.includes('·')&&element.y>times[0].y);
+  expect(detail).toBeDefined();
+});
+
 describe.each(Object.keys(referenceDesigns) as ReferenceDesignId[])('%s reference-driven design',design=>{
   it.each(samples)('$name retains every group, phase, clinician, event and clock',sample=>{
     const schedule=resolveSchedule(parseSchedule(sample.text)),scene=referenceDesign(schedule,design);

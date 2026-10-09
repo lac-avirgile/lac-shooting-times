@@ -14,6 +14,7 @@ type Card={group:Group;index:number;names:string[];rows:Row[];height:number;note
 type Block={kind:'group';card:Card}|{kind:'walk';walk:Walkthrough;height:number};
 const headerHeight=(names:string[])=>Math.max(space.headerHeight,names.length*space.headerLeading+24);
 const rowHeight=(r:Row)=>Math.max(space.rowHeight,r.lines.length*space.rowLeading+space.rowPadding);
+const arenaBodyHeight=(rows:Row[])=>Math.max(...rows.map(row=>row.lines.length?136+(row.lines.length-1)*space.rowLeading:104));
 const phaseWidths=(width:number,hasPerformance:boolean):number[]=>{
   const available=width-space.inset*2-space.groupGap*(hasPerformance?2:1);
   return hasPerformance?[available*0.44,available*0.28,available*0.28]:[available*0.56,available*0.44];
@@ -37,13 +38,13 @@ function plan(group:Group,index:number,width:number,horizontal:boolean,compact=f
   const tableLines=horizontal?treatments:lines(`${rangeLabel(group.table)}  (${treatmentLines(group).map(p=>p.text).join(' / ')})`,tableWidth,space.bodySize,400,font);
   const rows:Row[]=[{label:'TABLE',icon:brand.icons.table,lines:tableLines,headingRange:horizontal?rangeLabel(group.table):undefined,exception:group.table.start.value===null}];
   const phaseWidth=compact&&group.performance.applicable?width/2-240:width-240;
-  if(group.performance.applicable) rows.push({label:'PERFORMANCE',icon:brand.icons.performance,lines:lines(rangeLabel(group.performance),horizontal?widths[1]:phaseWidth,space.bodySize,400,font),exception:group.performance.start.value===null});
-  rows.push({label:'COURT',icon:brand.icons.court,lines:lines(rangeLabel(group.court),horizontal?widths[widths.length-1]:phaseWidth,space.bodySize,400,font),exception:group.court.end.value===null});
+  if(group.performance.applicable) rows.push({label:'PERFORMANCE',icon:brand.icons.performance,lines:horizontal?[]:lines(rangeLabel(group.performance),phaseWidth,space.bodySize,400,font),headingRange:horizontal?rangeLabel(group.performance):undefined,exception:group.performance.start.value===null});
+  rows.push({label:'COURT',icon:brand.icons.court,lines:horizontal?[]:lines(rangeLabel(group.court),phaseWidth,space.bodySize,400,font),headingRange:horizontal?rangeLabel(group.court):undefined,exception:group.court.end.value===null});
   const noteText=[group.kind==='normal'?'':groupKind(group),group.location!=='main'||group.walkthroughState!=='none'?locationLabel(group):'',group.clock.value===null?'':`${group.clock.value}:00 ON THE CLOCK`,group.notes].filter(Boolean).join(' · ');
   const notes=noteText?lines(noteText,width-space.inset*2,22,700,font):[];
   const head=headerHeight(names);
   const body=compact&&group.performance.applicable?rowHeight(rows[0])+Math.max(...rows.slice(1).map(rowHeight)):rows.reduce((sum,r)=>sum+rowHeight(r),0);
-  const height=head+(horizontal?Math.max(...rows.map(r=>r.lines.length*space.rowLeading+86)):body)+(notes.length?notes.length*space.noteLeading+space.notePadding:0)+12;
+  const height=head+(horizontal?arenaBodyHeight(rows):body)+(notes.length?notes.length*space.noteLeading+space.notePadding:0)+12;
   return {group,index,names,rows,height,notes,padding:0,compact};
 }
 function card(b:SceneBuilder,p:Card,x:number,y:number,width:number,dark:boolean,horizontal:boolean):void {
@@ -58,14 +59,14 @@ function card(b:SceneBuilder,p:Card,x:number,y:number,width:number,dark:boolean,
   if(horizontal) {
     let rx=x+space.inset;
     const widths=phaseWidths(width,p.group.performance.applicable);
-    const bodyHeight=Math.max(...p.rows.map(r=>r.lines.length*space.rowLeading+86));
+    const bodyHeight=arenaBodyHeight(p.rows);
     p.rows.forEach((r,i)=>{
       const rw=widths[i];
       if(i) b.line(rx-space.groupGap/2,cy+24,rx-space.groupGap/2,cy+bodyHeight-16,'#426180');
       phaseIcon(b,r.icon,rx,cy+24,space.iconSize,true);
       b.text(r.label,rx+46,opticalBaseline(cy+39,space.labelSize),space.labelSize,ink,400,rw-46,id,display);
-      if(r.headingRange)b.text(r.headingRange,rx+126,opticalBaseline(cy+39,space.bodySize),space.bodySize,r.exception?'#FF91A7':ink,400,rw-126,id,font);
-      r.lines.forEach((text,j)=>b.rich(exceptionParts(text),rx,cy+88+j*space.rowLeading,space.bodySize,font,r.exception?'#FF91A7':ink,rw,id));
+      if(r.headingRange)b.text(r.headingRange,rx,opticalBaseline(cy+75,space.bodySize),space.bodySize,r.exception?'#FF91A7':ink,700,rw,id,font);
+      r.lines.forEach((text,j)=>b.rich(exceptionParts(text),rx,opticalBaseline(cy+112+j*space.rowLeading,space.bodySize),space.bodySize,font,r.exception?'#FF91A7':'#D9E5F2',rw,id));
       rx+=rw+space.groupGap;
     });
     cy+=bodyHeight+p.padding/2;

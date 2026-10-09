@@ -48,7 +48,7 @@ const rosterNames: Omit<RosterEntry, 'clinician' | 'active' | 'secondary' | 'tre
   { id: 'reddish', name: 'Cam Reddish', short: 'Cam R', aliases: ['Cam Reddish', 'Reddish'] },
   { id: 'sallis', name: 'Hunter Sallis', short: 'Hunter', aliases: ['Sallis'] },
   { id: 'cameron-smith', name: 'Cameron Smith', short: 'Cameron', aliases: ['Cameron Smith'] },
-  { id: 'telfort', name: 'Jahmyl Telfort', short: 'Jahmyl', aliases: ['Telfort'] },
+  { id: 'telfort', name: 'Jahmyl Telfort', short: 'Jahmyl', aliases: ['Jahmyl', 'Telfort'] },
 ];
 export const historicalAthleteIds = ['omier','pedulla','washington','leonard','batum','mathurin','collins','bogdanovic'];
 // 2025-26 San Diego season roster: https://www.statscrew.com/minorbasketball/roster/t-GLGACC/y-2025
@@ -83,7 +83,7 @@ function normalizePlayer(player:RosterEntry):RosterEntry {
 export const normalize = (name: string): string => name.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().replace(/[.']/g, '').replace(/\s+/g, ' ').trim();
 export function findAthlete(name: string): RosterEntry | undefined {
   const key = normalize(name);
-  return roster.find(player => [player.name, ...player.aliases].some(alias => normalize(alias) === key));
+  return roster.find(player => [player.name, player.short, ...player.aliases].some(alias => normalize(alias) === key));
 }
 export function defaultTreatmentMinutes(id:string):number {
   const player=roster.find(entry=>entry.id===id);

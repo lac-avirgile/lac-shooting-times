@@ -16,6 +16,8 @@ import {syncMeeting} from './scheduler/meetingRule';
 import { DiagnosticsPanel } from './editor/DiagnosticsPanel';
 import { currentRosterExample, samples } from './fixtures/samples';
 import { hawaiiGame } from './fixtures/hawaii';
+import { vancouverGame } from './fixtures/vancouver';
+import { formatTime, parseTimeToken } from './domain/time';
 import {applyGameContext,type DailyGameContext} from './scheduler/gameContext';
 import type { Schedule } from './domain/models';
 import { templates, exportPresets, templateFor, type TemplateId, type ExportPresetId } from './config/templates';
@@ -47,8 +49,11 @@ function ClippersApp({settingsWarning}:{settingsWarning:string|null}) {
   const parse = (text = raw, gameContext?: DailyGameContext): void => {
     if (dirty && !window.confirm('Parsing again replaces your structured edits. Continue?')) return;
     const normalize=(value:string)=>value.trim().replace(/\s+/g,' ').toLowerCase();
-    const context=gameContext??(normalize(text)===normalize(hawaiiGame.text)?hawaiiGame:undefined);
-    const resolved = resolveSchedule(parseSchedule(text), context?.date);
+    const normalized=normalize(text);
+    const context:DailyGameContext|undefined=gameContext??(normalized===normalize(hawaiiGame.text)?hawaiiGame:normalized.includes(normalize(vancouverGame.text))?vancouverGame:undefined);
+    const parsed=parseSchedule(text);
+    if(context?.tip!==undefined)parsed.tip=parseTimeToken(formatTime(context.tip));
+    const resolved = resolveSchedule(parsed, context?.date);
     if(context)applyGameContext(resolved,context);
     setPreparation(prepareTreatments(resolved));
     setPrevious(schedule); setSchedule(resolved); setRaw(text); setDirty(false); setExportError('');
@@ -68,6 +73,7 @@ function ClippersApp({settingsWarning}:{settingsWarning:string|null}) {
         <textarea id="raw-text" value={raw} onChange={e => setRaw(e.target.value)} placeholder="Paste the daily shooting-times text here…" spellCheck={false} />
         <button className="primary wide-button" onClick={() => parse()} disabled={!raw.trim()}>Parse Schedule</button>
         <button className="wide-button" onClick={() => parse(hawaiiGame.text, hawaiiGame)}>Load Oct 4 Hawaii game</button>
+        <button className="wide-button" onClick={() => parse(vancouverGame.text, vancouverGame)}>Load Oct 10 Vancouver game</button>
         {settingsWarning&&<p role="alert" className="export-error">{settingsWarning}</p>}
         <div className="sample-picker"><label>Examples<select aria-label="Load sample" value="" onChange={e => { const sample = e.target.value === 'current' ? currentRosterExample : samples[Number(e.target.value)]; if (sample) parse(sample.text); }}><option value="">Choose example…</option><option value="current">Current roster · illustrative times</option>{samples.map((s, i) => <option key={s.name} value={i}>Historical {i + 1}. {s.name}</option>)}</select></label><p className="field-help">Example times are for demonstration. Historical off-roster names have no current clinician assignment.</p></div>
         {schedule && <><div className="editor-heading"><h2>Review & edit</h2><button disabled={!previous} onClick={() => { if (previous) { setSchedule(previous); setPrevious(null); setDirty(true); } }}>Undo</button></div><ScheduleEditor schedule={schedule} edit={edit} /></>}

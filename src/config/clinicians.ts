@@ -1,5 +1,5 @@
 /** Season partnership table. User-supplied assignments take priority over references. */
-export const clinicians = ['Jasen', 'Colby', 'Dan', 'Maggie', 'Jesse', 'Eric', 'Lorin'];
+export const clinicians = ['Jasen', 'Colby', 'Dan', 'Maggie', 'Jesse', 'Eric', 'Lorin', 'Joann'];
 export const clinicianKey = (name: string): string => ['jp','jasen powell'].includes(name.trim().toLowerCase()) ? 'jasen' : name.trim().toLowerCase();
 /** User-approved fallback order; proposals still require review/apply. */
 export const backupClinicians = ['Colby', 'Dan', 'Jasen'];

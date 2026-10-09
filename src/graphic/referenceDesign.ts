@@ -98,7 +98,7 @@ function masthead(b:SceneBuilder,s:Schedule,id:ReferenceDesignId,canvasWidth=192
   b.rect(0,0,canvasWidth,canvasHeight,style.dark?'url(#arena)':'white');
   if(style.dark){
     b.image(brand.logo,canvasWidth-750,30,710,710,undefined,0.045);
-    b.crop(designArt.arena,0,canvasHeight-177,1260,177,[0,834,830,107],1672,941,'url(#arena-photo)',undefined,0.72);
+    if(s.game.homeAway.value==='home')b.crop(designArt.arena,0,canvasHeight-177,1260,177,[0,834,830,107],1672,941,'url(#arena-photo)',undefined,0.72);
     b.rect(0,0,canvasWidth,canvasHeight,'url(#arena-lines)');
     b.path(`M48 32H${48+columnWidth}L${26+columnWidth} 160H48Z`,'url(#event-red)');
     b.text('PREGAME WORKOUT TIMES',80,opticalBaseline(96,84),84,'white',400,columnWidth-80,undefined,display);
@@ -107,7 +107,7 @@ function masthead(b:SceneBuilder,s:Schedule,id:ReferenceDesignId,canvasWidth=192
     b.image(brand.logo,40,44,240,240);
     b.text('LOS ANGELES',35,352,37,'white',400,250,undefined,display);
     b.text('CLIPPERS',32,442,80,'white',400,270,undefined,display);
-    b.crop(designArt.sidebar,0,510,320,500,[0,480,300,340],1672,941,'url(#sidebar-photo)',undefined,0.76);
+    if(s.game.homeAway.value==='home')b.crop(designArt.sidebar,0,510,320,500,[0,480,300,340],1672,941,'url(#sidebar-photo)',undefined,0.76);
     b.text('PREGAME WORKOUT TIMES',368,opticalBaseline(96,73),73,ink,400,columnWidth,undefined,display);
     b.line(368,160,canvasWidth-48,160,brand.red,3);
   }else{

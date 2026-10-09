@@ -65,7 +65,7 @@ export function resolveSchedule(parsed: ParsedDraft, date = today()): Schedule {
       athletes: group.athletes.map(player => {
         const known = roster.find(entry => entry.id === player.id);
         return { id: player.id, name: player.name, workoutStaff: player.workoutStaff,
-          clinician: known?.active && known.clinician ? field(known.clinician, 'override', `season-clinician-partnership:${partnership(player.id)?.source ?? 'unknown'}`) : unresolved<string>(known && !known.active ? 'Historical player: replace with an active player; no current clinician assignment' : 'Clinician needed'),
+          clinician: known?.active && known.clinician ? field(known.clinician, 'override', `season-clinician-partnership:${partnership(player.id)?.source ?? 'unknown'}`) : unresolved<string>(known && !known.active ? 'Player is not assigned to LA; confirm today’s clinician' : 'Clinician needed'),
           treatment: emptyRange('Individual occupied interval not supplied', false), treatmentNote: '',
         };
       }),

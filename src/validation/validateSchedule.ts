@@ -33,7 +33,7 @@ export function validateSchedule(schedule: Schedule): Diagnostic[] {
     if (!group.location.trim()) add('missing-location', 'error', `${label}: court location required.`, group);
     group.athletes.forEach(athlete => {
       if (!roster.some(entry => entry.id === athlete.id)) add('unknown-player', 'error', `${label}: unknown player ${athlete.name}.`, group);
-      if (roster.some(entry => entry.id === athlete.id && !entry.active)) add('off-roster-athlete', 'warning', `${athlete.name} is a historical player, not on the active roster. Replace this player for today's schedule.`, group);
+      if (roster.some(entry => entry.id === athlete.id && !entry.active) && !schedule.game.activeForGame?.includes(athlete.id)) add('off-roster-athlete', 'warning', `${athlete.name} is not assigned to the LA roster. Confirm this player's team for today's schedule.`, group);
       if (seen.has(athlete.id)) add('duplicate-player', 'warning', `${athlete.name} appears more than once; confirm this is intentional.`, group);
       seen.add(athlete.id);
       if (!athlete.clinician.value) add('missing-clinician', 'error', `${athlete.name}: treatment clinician required.`, group);

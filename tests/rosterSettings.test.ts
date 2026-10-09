@@ -8,7 +8,7 @@ import { planTreatments } from '../src/scheduler/treatmentPlanner';
 beforeEach(()=>setRoster(defaultRoster));
 describe('editable season settings',()=>{
   it('defaults everyone active to 15 except Rui, Darius and Brandon at 30',()=>{
-    expect(clinicians).toEqual(['Jasen','Colby','Dan','Maggie','Jesse','Eric','Lorin']);
+    expect(clinicians).toEqual(['Jasen','Colby','Dan','Maggie','Jesse','Eric','Lorin','Joann']);
     for(const player of activeRoster)expect(defaultTreatmentMinutes(player.id)).toBe(['hachimura','garland','ingram'].includes(player.id)?30:15);
   });
   it('persists typed players, aliases, assignments and minutes across reload',()=>{

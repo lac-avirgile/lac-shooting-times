@@ -77,6 +77,7 @@ export interface Schedule {
     venue: Field<string>;
     city: Field<string>;
     draft: boolean;
+    activeForGame?: string[];
   };
   groups: Group[];
   walkthroughs: Walkthrough[];

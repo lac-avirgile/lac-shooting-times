@@ -2,7 +2,7 @@ import {field,type Schedule} from '../domain/models';
 
 export interface DailyGameContext {
   date:string;venue:string;city:string;label?:string;
-  tip?:number;homeAway?:'home'|'away';opponentId?:string;draft?:boolean;activeAthleteIds?:readonly string[];
+  tip?:number;homeAway?:'home'|'away';opponentId?:string;draft?:boolean;activeAthleteIds?:readonly string[];unavailableClinicians?:readonly string[];
   treatmentOverrides?:readonly {id:string;duration?:number;clinician?:string}[];
 }
 /** Daily operational approvals never change season defaults. */
@@ -14,6 +14,7 @@ export function applyGameContext(schedule:Schedule,context:DailyGameContext):voi
   if(context.opponentId)schedule.game.opponentId=context.opponentId;
   if(context.draft!==undefined)schedule.game.draft=context.draft;
   if(context.activeAthleteIds)schedule.game.activeForGame=[...context.activeAthleteIds];
+  if(context.unavailableClinicians)schedule.game.unavailableClinicians=[...context.unavailableClinicians];
   schedule.game.venue=field(context.venue,'override','User-provided neutral-site game context');
   schedule.game.city=field(context.city,'override','Confirmed game venue city');
   for(const override of context.treatmentOverrides??[])for(const group of schedule.groups)for(const athlete of group.athletes){

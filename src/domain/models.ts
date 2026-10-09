@@ -78,6 +78,7 @@ export interface Schedule {
     city: Field<string>;
     draft: boolean;
     activeForGame?: string[];
+    unavailableClinicians?: string[];
   };
   groups: Group[];
   walkthroughs: Walkthrough[];

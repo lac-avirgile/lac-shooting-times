@@ -7,6 +7,7 @@ import {prepareTreatments} from '../src/scheduler/prepareTreatments';
 import {validateSchedule} from '../src/validation/validateSchedule';
 import {formatTime,parseTimeToken} from '../src/domain/time';
 import {referenceDesign} from '../src/graphic/referenceDesign';
+import {field} from '../src/domain/models';
 
 describe('Oct 10 Vancouver shooting times',()=>{
   it('preserves the user-supplied order, clinicians and clock times with the confirmed away venue',()=>{
@@ -29,5 +30,8 @@ describe('Oct 10 Vancouver shooting times',()=>{
     const preparation=prepareTreatments(schedule);
     const errors=validateSchedule(schedule).filter(issue=>issue.severity==='error');
     expect({preparation,errors}).toEqual({preparation:{applied:true,changes:[],issues:[]},errors:[]});
+    const changed=structuredClone(schedule);
+    changed.groups[0].athletes[0].clinician=field('Maggie','override','Test change');
+    expect(validateSchedule(changed).some(issue=>issue.code==='clinician-unavailable')).toBe(true);
   });
 });

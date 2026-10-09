@@ -10,6 +10,7 @@ export const vancouverGame={
   city:'Vancouver, BC',
   draft:true,
   activeAthleteIds:['telfort'],
+  unavailableClinicians:['Maggie'],
   treatmentOverrides:[
     {id:'garland',clinician:'Joann'},
     {id:'telfort',clinician:'Jesse'},

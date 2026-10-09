@@ -38,6 +38,7 @@ export function validateSchedule(schedule: Schedule): Diagnostic[] {
       seen.add(athlete.id);
       if (!athlete.clinician.value) add('missing-clinician', 'error', `${athlete.name}: treatment clinician required.`, group);
       else if(!clinicians.some(name=>clinicianKey(name)===clinicianKey(athlete.clinician.value!)))add('unknown-clinician','error',`${athlete.name}: choose a configured clinician, not workout staff.`,group);
+      else if(schedule.game.unavailableClinicians?.some(name=>clinicianKey(name)===clinicianKey(athlete.clinician.value!)))add('clinician-unavailable','error',`${athlete.name}: ${athlete.clinician.value} is unavailable for this game.`,group);
       checkRange(athlete.treatment, `${athlete.name} individual treatment`, group);
       if (athlete.treatmentDuration) {
         const duration=athlete.treatmentDuration.value;

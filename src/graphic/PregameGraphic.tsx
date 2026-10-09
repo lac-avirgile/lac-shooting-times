@@ -23,7 +23,7 @@ function GroupBlock({plan,width}:{plan:GroupPlan;width:number}) {
     <rect x={plan.x} y={plan.y} width="5" height={headerHeight} fill={brand.red}/>
     {plan.header.map((line,i)=><text key={i} x={plan.x+28} y={opticalBaseline(plan.y+headerHeight/2+(i-(plan.header.length-1)/2)*original.headerLeading,original.nameSize)} fontSize={original.nameSize} fontFamily={brand.headerFont} fontWeight="700" fill="white">{line}</text>)}
     {plan.rows.map(row=>{if(row.phase==='performance')parallelY=rowY;const y=row.xOffset?parallelY:rowY;const paired=plan.compact&&plan.group.performance.applicable&&row.phase!=='table';const h=paired?Math.max(...plan.rows.filter(r=>r.phase!=='table').map(r=>r.height)):row.height;if(!row.xOffset)rowY+=h;return <g key={row.phase} data-phase={row.phase}>
-      {row.phase!=='table'&&<rect x={plan.x+row.xOffset+1} y={y} width={(paired?width/2:width)-2} height={h} fill="#EDF1F7" fillOpacity="0.78"/>}
+      {row.phase!=='table'&&<rect x={plan.x+row.xOffset+1} y={y} width={(paired?width/2:width)-2} height={h} fill="#EDF1F7" fillOpacity="0.48"/>}
       <image href={brand.icons[row.phase]} x={plan.x+row.xOffset+space.inset} y={y+(h-space.iconSize)/2} width={space.iconSize} height={space.iconSize}/>
       {row.lines.map((line,index)=><SvgLine key={index} parts={line} x={plan.x+row.xOffset+70} y={opticalBaseline(y+h/2+(index-(row.lines.length-1)/2)*original.rowLeading,original.bodySize)} size={original.bodySize}/>)}</g>;})}
   </g>;
@@ -54,7 +54,7 @@ export const PregameGraphic=forwardRef<SVGSVGElement,{schedule:Schedule;layout:L
       </defs>
       <rect width={width} height={height} fill="white"/>
       <ellipse cx={width*.8} cy={height*.8} rx={width*.55} ry={height*.7} fill="url(#original-halo)"/>
-      <image href={brand.watermark} x={width*.06} y={height*.43} width={width*.86} height={height*.54} opacity={original.watermarkOpacity} filter="url(#original-watermark)" preserveAspectRatio="xMidYMid meet"/>
+      <image href={brand.watermark} x={width*.06} y={height*.20} width={width*.86} height={height*.60} opacity={original.watermarkOpacity} filter="url(#original-watermark)" preserveAspectRatio="xMidYMid meet"/>
       <rect x="48" y="32" width={layout.columnWidth} height="100" fill="url(#original-red)" filter="url(#original-red-glow)"/>
       <text x={48+layout.columnWidth/2} y={opticalBaseline(82,brand.titleSize)} textAnchor="middle" fill="white" fontFamily={brand.titleFont} fontWeight="900" fontSize={brand.titleSize}>PREGAME WORKOUT TIMES</text>
       <g transform={`translate(${width-1920},16)`}>

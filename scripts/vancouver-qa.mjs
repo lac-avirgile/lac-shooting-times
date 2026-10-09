@@ -30,6 +30,10 @@ try {
   const download=await downloadPromise;
   assert.equal(download.suggestedFilename(),'2026-10-10_at_raptors_pregame-workout.png');
   await download.saveAs(output);
+  for(const [name,file] of [['Original · Operations','original'],['1 · Clean','clean'],['2 · Sidebar','sidebar']]){
+    await page.getByRole('button',{name,exact:true}).click();
+    await graphic.screenshot({path:fileURLToPath(new URL(`../qa-output/2026-10-10_${file}-preview.png`,import.meta.url))});
+  }
   const source=await page.locator('#raw-text').inputValue();
   await page.locator('#raw-text').fill(`Initial shooting times for tomorrow. Let me know if this works for medical pairings.\n\n${source}\n\n--> DG will be with Joann; Jahmyl with Jesse; Yuki with Dan; DJ and Keaton with Jasen. Maggie and Lorin are not on this trip; Blake goes to Colby.`);
   await page.getByRole('button',{name:'Parse Schedule'}).click();

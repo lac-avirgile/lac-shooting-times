@@ -32,7 +32,10 @@ describe('image composition',()=>{
     const schedule=resolveSchedule(parseSchedule(currentRosterExample.text));
     const arena=referenceDesign(schedule,'reference-4');
     expect(arena.elements).toContainEqual(expect.objectContaining({kind:'crop-image',mask:'url(#arena-photo)',opacity:0.72}));
-    const clean=referenceDesign(schedule,'reference-1');
-    expect(clean.elements).toContainEqual(expect.objectContaining({kind:'image',href:brand.watermark,filter:'url(#watermark-alpha)',opacity:0.55}));
+    for(const design of ['reference-1','reference-2'] as const){
+      const scene=referenceDesign(schedule,design);
+      expect(scene.elements).toContainEqual(expect.objectContaining({kind:'image',href:brand.watermark,filter:'url(#watermark-alpha)',opacity:0.78}));
+      expect(scene.elements.some(element=>element.kind==='rect'&&element.fill==='#FFFFFF'&&element.opacity===0.70)).toBe(true);
+    }
   });
 });

@@ -50,7 +50,7 @@ function plan(group:Group,index:number,width:number,horizontal:boolean,compact=f
 function card(b:SceneBuilder,p:Card,x:number,y:number,width:number,dark:boolean,horizontal:boolean):void {
   const ink=dark?'#FFFFFF':brand.navy,head=headerHeight(p.names),id=p.group.id;
   if(dark) b.path(`M${x+12} ${y}H${x+width}V${y+p.height-12}L${x+width-12} ${y+p.height}H${x}V${y+12}Z`,'url(#panel)','#6383A4',1,0.78);
-  else b.rect(x,y,width,p.height,'#FFFFFF','#CCD4DE',6,0.86);
+  else b.rect(x,y,width,p.height,'#FFFFFF','#CCD4DE',6,0.70);
   b.rect(x,y,width,head,dark?'#112B49':brand.navy,undefined,undefined,dark?0.88:0.94);
   b.path(`M${x} ${y}H${x+72}L${x+62} ${y+head}H${x}Z`,brand.red);
   b.text(String(p.index+1).padStart(2,'0'),x+20,opticalBaseline(y+head/2,30),30,'white',400,42,id,display);
@@ -81,7 +81,7 @@ function card(b:SceneBuilder,p:Card,x:number,y:number,width:number,dark:boolean,
       const parallel=p.compact&&p.group.performance.applicable&&i>0,rowPadding=p.padding/(parallel?2:p.rows.length),h=(parallel?Math.max(...p.rows.slice(1).map(rowHeight)):rowHeight(r))+rowPadding;
       if(i===1)pairY=cy;
       const ry=parallel?pairY:cy,rx=x+(parallel&&i===2?width/2:0),rw=parallel?width/2:width;
-      if(i%2===1||parallel)b.rect(rx+1,ry,rw-2,h,'#F0F3F6',undefined,undefined,0.76);
+      if(i%2===1||parallel)b.rect(rx+1,ry,rw-2,h,'#F0F3F6',undefined,undefined,0.48);
       phaseIcon(b,r.icon,rx+space.inset,ry+(h-space.iconSize)/2,space.iconSize,false);
       b.text(r.label,rx+70,opticalBaseline(ry+h/2,space.labelSize),space.labelSize,ink,400,parallel?120:140,id,display);
       r.lines.forEach((text,j)=>b.rich(exceptionParts(text),rx+216,opticalBaseline(ry+h/2+(j-(r.lines.length-1)/2)*space.rowLeading,space.bodySize),space.bodySize,font,r.exception?brand.red:ink,rw-240,id));
@@ -114,10 +114,11 @@ function masthead(b:SceneBuilder,s:Schedule,id:ReferenceDesignId,canvasWidth=192
     b.text('LOS ANGELES',35,352,37,'white',400,250,undefined,display);
     b.text('CLIPPERS',32,442,80,'white',400,270,undefined,display);
     if(s.game.homeAway.value==='home')b.crop(designArt.sidebar,0,510,320,500,[0,480,300,340],1672,941,'url(#sidebar-photo)',undefined,0.76);
+    b.image(brand.watermark,canvasWidth*.24,canvasHeight*.20,canvasWidth*.72,canvasHeight*.60,'url(#watermark-alpha)',0.78);
     b.text('PREGAME WORKOUT TIMES',368,opticalBaseline(96,73),73,ink,400,columnWidth,undefined,display);
     b.line(368,160,canvasWidth-48,160,brand.red,3);
   }else{
-    b.image(brand.watermark,canvasWidth*.06,canvasHeight*.43,canvasWidth*.86,canvasHeight*.54,'url(#watermark-alpha)',0.55);
+    b.image(brand.watermark,canvasWidth*.06,canvasHeight*.20,canvasWidth*.86,canvasHeight*.60,'url(#watermark-alpha)',0.78);
     b.rect(0,0,canvasWidth,canvasHeight,'url(#paper-dots)');
     b.rect(48,32,columnWidth,128,'url(#brand-ribbon)');
     b.image(brand.logo,72,52,88,88);
